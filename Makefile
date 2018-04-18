@@ -1,10 +1,13 @@
 .SUFFIXES = .c .o .d
 CC=gcc
-INC=
-LIBS=
+#헤더파일 탐색할 디렉토리
+INC=F:\MinGW\msys\1.0\home\gmp-6.1.2
+#LIBS=F:\Atmel\lib
+#링크 디렉토리
+LIBS=F:\MinGW\msys\1.0\home\gmp-6.1.2
 CFLAGS=-g -Wall
 OBJDIR=Debug
-_OBJS=aes.o bignum256.o test_helpers.o
+_OBJS=aes.o bignum256.o test_helpers.o endian.o
 myOBJS= $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 C_DEPS +=  \
 	aes.d \
@@ -12,7 +15,7 @@ C_DEPS +=  \
 	test_helpers.d
 
 SRCS = $(_OBJS:.o=.c)
-TARGET=depfile
+TARGET=whole
 
 
 blockFirst:
@@ -24,18 +27,6 @@ printVar: blockFirst
 %_dbg.o: %.c
 	$(CC) -g -o $@ ${CFLAG} -c $<
 
-$(TARGET): $(_OBJS)
-	$(CC) -g -o $@  $^ -L.
-
-aes.o: aes.c
-	$(CC) -g -c $<
-
-bignum256.o: bignum256.c
-	$(CC) -g -c $<
-
-test_helpers.o: test_helpers.c
-	$(CC) -g -c $<
-
 move:
 	@echo msg: move object files
 	mv -v $(wildcard *.o) Debug
@@ -43,8 +34,37 @@ move:
 clean:
 	rm -rf $(wildcard $(OBJDIR)/*.o)
 
-depPrint: aes.c
-	gcc -M $< -o checkDep.d
+depPrint: bignum256.c
+	gcc -M $< -o checkDep.d -I$(INC)
+
+$(TARGET): $(_OBJS)
+	$(CC) -g -o $@  $^ -L$(LIBS) -lgmp
+# don't forget to set both -L(디렉토리위치) and -l(화일명)
+# file name(화일명) looks like "lib화일명".
+# so get rid of "lib" symbol and use only "화일명"
+
+endian.o: endian.c
+	$(CC) -g -c $< 
+
+aes.o: aes.c
+	$(CC) -g -c $<
+
+bignum256.o: bignum256.c
+	$(CC) -g -c $< -I$(INC)
+
+test_helpers.o: test_helpers.c
+	$(CC) -g -c $<
+
+
+
+#%.o: %.c
+#	$(CC) -g -c $< 
+
+#allsrc: $(SRCS)
+#	$(CC) -g -c $^ -I$(LIBS)\gmp\include
+#allobj: $(_OBJS)
+#	$(CC) -o start $^ -I$(LIBS)\gmp\include
+# comments I find commnets symbol of MakeFile
 
 
 
