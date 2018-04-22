@@ -1,0 +1,8 @@
+# comments
+
+# ignore all files in the directory
+Debug/
+
+# no .o files
+*.o
+

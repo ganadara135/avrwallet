@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>7.0</ProjectVersion>
+    <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
+    <ProjectGuid>dce6c7e3-ee26-4d79-826b-08594b9ad897</ProjectGuid>
+    <avrdevice>ATmega128</avrdevice>
+    <avrdeviceseries>none</avrdeviceseries>
+    <OutputType>Executable</OutputType>
+    <Language>C</Language>
+    <OutputFileName>$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AssemblyName>avrwallet</AssemblyName>
+    <Name>avrwallet</Name>
+    <RootNamespace>avrwallet</RootNamespace>
+    <ToolchainFlavour>Native</ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <CacheFlash>true</CacheFlash>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress />
+    <UncachedRange />
+    <preserveEEPROM>true</preserveEEPROM>
+    <OverrideVtorValue />
+    <BootSegment>2</BootSegment>
+    <ResetRule>0</ResetRule>
+    <eraseonlaunchrule>0</eraseonlaunchrule>
+    <EraseKey />
+    <AsfFrameworkConfig>
+      <framework-data xmlns="">
+  <options />
+  <configurations />
+  <files />
+  <documentation help="" />
+  <offline-documentation help="" />
+  <dependencies>
+    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.35.1" />
+  </dependencies>
+</framework-data>
+    </AsfFrameworkConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ToolchainSettings>
+      <AvrGcc>
+  <avrgcc.common.Device>-mmcu=atmega128 -B "%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.203\gcc\dev\atmega128"</avrgcc.common.Device>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>NDEBUG</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.203\include</Value>
+    </ListValues>
+  </avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avrgcc.linker.libraries.Libraries>
+  <avrgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.203\include</Value>
+    </ListValues>
+  </avrgcc.assembler.general.IncludePaths>
+</AvrGcc>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ToolchainSettings>
+      <AvrGcc>
+  <avrgcc.common.Device>-mmcu=atmega128 -B "%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.203\gcc\dev\atmega128"</avrgcc.common.Device>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.203\include</Value>
+    </ListValues>
+  </avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avrgcc.linker.libraries.Libraries>
+  <avrgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.203\include</Value>
+    </ListValues>
+  </avrgcc.assembler.general.IncludePaths>
+  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+</AvrGcc>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="aes.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="aes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="baseconv.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="baseconv.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="bignum256.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="bignum256.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="bip32.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="bip32.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="common.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ecdsa.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ecdsa.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="endian.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="endian.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="fft.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="fft.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="fix16.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="fix16.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hash.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hash.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hmac_drbg.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hmac_drbg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hmac_sha512.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hmac_sha512.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hwinterface.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="int64.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="messages.pb.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="messages.pb.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pb.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pbkdf2.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pbkdf2.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pb_decode.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pb_decode.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pb_encode.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pb_encode.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="prandom.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="prandom.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ripemd160.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ripemd160.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sha256.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sha256.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="storage_common.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="stream_comm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="stream_comm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="test_helpers.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="test_helpers.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="transaction.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="transaction.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="wallet.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="wallet.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="xex.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="xex.h">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="prandom.h.gch">
+      <SubType>compile</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+</Project>
