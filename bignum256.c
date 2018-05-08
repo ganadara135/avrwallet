@@ -32,8 +32,11 @@
   * This file is licensed as described by the file LICENCE.
   */
  
-#define TEST_BIGNUM256
-#define TEST
+//#define TEST_BIGNUM256
+//#define TEST
+
+
+//#define PLATFORM_SPECIFIC_BIGMULTIPLY
 
 #ifdef TEST
 #include <assert.h>
@@ -43,6 +46,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gmp.h>
+//#include "F:\MinGW\msys\1.0\home\gmp-6.1.2\gmp.h"
 #include "endian.h"
 #include "test_helpers.h"
 #endif // #ifdef TEST_BIGNUM256
@@ -74,6 +78,8 @@ uint8_t bigCompareVariableSize(uint8_t *op1, uint8_t *op2, uint8_t size)
 	uint8_t i;
 	uint8_t r;
 	uint8_t cmp;
+
+//	printf(" in bigCompareVariableSize()");
 
 	r = BIGCMP_EQUAL;
 	for (i = (uint8_t)(size - 1); i < size; i--)
@@ -203,6 +209,8 @@ void bigSetField(const uint8_t *in_n, const uint8_t *in_complement_n, const uint
   */
 uint8_t bigAddVariableSizeNoModulo(uint8_t *r, uint8_t *op1, uint8_t *op2, uint8_t op_size)
 {
+//	printf(" in bigAddVariableSizeNoModulo() ");
+
 	uint16_t partial;
 	uint8_t carry;
 	uint8_t i;
@@ -510,11 +518,11 @@ void bigInvert(BigNum256 r, BigNum256 op1)
 #ifdef TEST_BIGNUM256
 
 /** Number of low edge test numbers (numbers near minimum). */
-#define LOW_EDGE_CASES		700
+#define LOW_EDGE_CASES		70
 /** Number of high edge test numbers (numbers near maximum). */
-#define HIGH_EDGE_CASES		700
+#define HIGH_EDGE_CASES		70
 /** Number of "random" test numbers. */
-#define RANDOM_CASES		3000
+#define RANDOM_CASES		100
 
 /** The total number of test numbers. */
 #define TOTAL_CASES			(LOW_EDGE_CASES + HIGH_EDGE_CASES + RANDOM_CASES)
@@ -570,6 +578,8 @@ static uint8_t test_cases[TOTAL_CASES][32];
   */
 static void generateTestCases(BigNum256 max)
 {
+	printf("in generateTestCases\n");
+
 	int test_num;
 	int i;
 	int j;
@@ -760,6 +770,7 @@ int main(void)
 	// Test internal functions, which don't do modular reduction (hence
 	// max is 2 ^ 256).
 	generateTestCases(zero);
+	printf("after generateTestCaese() ");
 	for (operation = 0; operation < 3; operation++)
 	{
 		for (i = 0; i < TOTAL_CASES; i++)
@@ -849,6 +860,8 @@ int main(void)
 			} // for (j = 0; j < TOTAL_CASES; j++)
 		} // for (i = 0; i < TOTAL_CASES; i++)
 	} // for (operation = 0; operation < 3; operation++)
+	printf(" call finishTests() in the middle \n");
+	finishTests();
 
 	// Test bigShiftRightNoModulo().
 	for (i = 0; i < TOTAL_CASES; i++)

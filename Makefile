@@ -1,13 +1,18 @@
 .SUFFIXES = .c .o .d
 CC=gcc
-#헤더파일 탐색할 디렉토리
+#헤더파일 탐색할 디렉토리 # something require quotation mark "INC" such as VS
 INC=F:\MinGW\msys\1.0\home\gmp-6.1.2
 #LIBS=F:\Atmel\lib
 #링크 디렉토리
 LIBS=F:\MinGW\msys\1.0\home\gmp-6.1.2
 CFLAGS=-g -Wall
 OBJDIR=Debug
-_OBJS=aes.o bignum256.o test_helpers.o endian.o
+_OBJS=aes.o bignum256.o test_helpers.o endian.o hash.o \
+	sha256.o ripemd160.o fix16.o baseconv.o fft.o \
+	hmac_drbg.o ecdsa.o hmac_sha512.o messages.pb.o \
+	pb_decode.o pb_encode.o pbkdf2.o bip32.o xex.o \
+	prandom.o wallet.o transaction.o stream_comm.o
+
 myOBJS= $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 C_DEPS +=  \
 	aes.d \
@@ -24,9 +29,6 @@ blockFirst:
 printVar: blockFirst
 	@echo $<
 
-%_dbg.o: %.c
-	$(CC) -g -o $@ ${CFLAG} -c $<
-
 move:
 	@echo msg: move object files
 	mv -v $(wildcard *.o) Debug
@@ -34,8 +36,9 @@ move:
 clean:
 	rm -rf $(wildcard $(OBJDIR)/*.o)
 
-depPrint: bignum256.c
-	gcc -M $< -o checkDep.d -I$(INC)
+depPrint: prandom.c
+	gcc -M $< -o checkDep.d -I..
+#gcc -M $< -o checkDep.d -I$(INC)
 
 $(TARGET): $(_OBJS)
 	$(CC) -g -o $@  $^ -L$(LIBS) -lgmp
@@ -55,6 +58,68 @@ bignum256.o: bignum256.c
 test_helpers.o: test_helpers.c
 	$(CC) -g -c $<
 
+hash.o: hash.c
+	$(CC) -g -c $<
+
+sha256.o: sha256.c
+	$(CC) -g -c $<
+
+ripemd160.o: ripemd160.c
+	$(CC) -g -c $<
+
+fix16.o: fix16.c
+	$(CC) -g -c $<
+
+baseconv.o: baseconv.c
+	$(CC) -g -c $<
+
+fix16.o: fix16.c
+	$(CC) -g -c $<
+
+fft.o: fft.c
+	$(CC) -g -c $<
+
+hmac_drbg.o: hmac_drbg.c
+	$(CC) -g -c $<
+
+ecdsa.o: ecdsa.c
+	$(CC) -g -c $<
+
+hmac_sha512.o: hmac_sha512.c
+	$(CC) -g -c $<
+
+messages.pb.o: messages.pb.c
+	$(CC) -g -c $<
+
+pb_decode.o: pb_decode.c
+	$(CC) -g -c $<
+
+pb_encode.o: pb_encode.c
+	$(CC) -g -c $<
+
+pbkdf2.o: pbkdf2.c
+	$(CC) -g -c $<
+
+bip32.o: bip32.c
+	$(CC) -g -c $<
+
+transaction.o: transaction.c
+	$(CC) -g -c $<
+
+prandom.o: prandom.c
+	$(CC) -g -c $<
+
+xex.o: xex.c
+	$(CC) -g -c $<
+
+wallet.o: wallet.c
+	$(CC) -g -c $<
+
+stream_comm.o: stream_comm.c
+	$(CC) -g -c $<
+
+
+
 
 
 #%.o: %.c
@@ -69,7 +134,9 @@ test_helpers.o: test_helpers.c
 
 
 
-
+%.o: %.c
+	@echo test10
+	$(CC) -g -o $@ ${CFLAG} -c $<
 ppp: $(_OBJS)
 	@echo $^
 

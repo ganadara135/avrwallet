@@ -9,7 +9,7 @@
             //"command": "echo Hello",
             "command": "make",
             "args": [
-                "depFile"
+                "whole"
             ],
             "group": {
                 "kind": "build",
@@ -23,7 +23,7 @@
             "command": "cmd",
             "group": "test",
             "args": [
-               "/C","${fileDirname}\\depfile"
+               "/C","${fileDirname}\\whole"
             ]
         }
     ]

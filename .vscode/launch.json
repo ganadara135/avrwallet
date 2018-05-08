@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/depfile.exe",
+            "program": "${workspaceFolder}/whole.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -17,10 +17,9 @@
   * This file is licensed as described by the file LICENCE.
   */
 
-//#define __DOXYGEN__ 
-#define TEST_AES
-#define TEST
 
+//#define TEST_AES
+//#define TEST
 
 #ifdef TEST_AES
 #include <stdlib.h>
