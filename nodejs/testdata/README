@@ -1,3 +1,12 @@
+## Serialport operation Test files with Windows PC
+test complete files
+ping.bin
+initialize.bin
+get_device_uuid.bin
+
+
+
+## original message
 hwb_tester.c is a program which can send and receive packets over a serial
 link.
 Compile it with something like: gcc -Os -o hwb_tester hwb_tester.c
