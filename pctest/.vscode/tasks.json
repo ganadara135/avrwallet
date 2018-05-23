@@ -1,0 +1,30 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "call Makefile",
+            "type": "shell",
+            //"command": "echo Hello",
+            "command": "make",
+            "args": [
+                "whole"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        
+        // 바이너리 실행
+        {
+            "label": "execute",
+            "command": "cmd",
+            "group": "test",
+            "args": [
+               "/C","${fileDirname}\\whole"
+            ]
+        }
+    ]
+}

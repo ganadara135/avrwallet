@@ -1,0 +1,30 @@
+{
+    "name": "mySerialport",
+    "version": "0.0.1",
+    "description": "avrwallet 한글입력 체크",
+    "keywords": ["AVR", "serialport"],
+    "bugs": {
+        "url": "http://github.com/ganadara135/avrwallet/issues",
+        "gmail": "ganadara135@gmail.com"
+    },
+    "license": "free",
+    "author": {
+        "name": "KCOD",
+        "email": "ganadara135@gmail.com"
+    },
+    "dependencies": {
+        "serialport": "^6.2.0",
+        "node-readline": "0.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/ganadara135/avrwallet.git"
+    },
+    "scripts": {
+        "start": "node serialTest.js"
+    },
+    "config": {
+        "port": "9090"
+    },
+    "main": "serialTest.js"
+}

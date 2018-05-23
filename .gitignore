@@ -2,6 +2,7 @@
 
 # ignore all files in the directory
 Debug/
+nodejs/node_modules/
 
 # no .o files
 *.o

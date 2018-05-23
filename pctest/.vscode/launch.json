@@ -1,0 +1,42 @@
+{
+    // IntelliSense瑜� �궗�슜�븯�뿬 媛��뒫�븳 �듅�꽦�뿉 ����빐 �븣�븘蹂댁꽭�슂.
+    // 湲곗〈 �듅�꽦�뿉 ����븳 �꽕紐낆쓣 蹂대젮硫� 媛�由ы궢�땲�떎.
+    // �옄�꽭�븳 �궡�슜�쓣 蹂대젮硫� https://go.microsoft.com/fwlink/?linkid=830387�쓣(瑜�) 諛⑸Ц�븯�꽭�슂.
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/whole.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "f:\\MinGw\\bin\\gdb.exe",
+            //"visualizerFile": "${workspaceRoot}/my.natvis",
+            //"showDisplayString": true,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false
+                }
+            ],
+            "launchCompleteCommand": "exec-run",
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "/usr/bin/gdb"
+            },
+            "osx": {
+                "MIMode": "lldb"
+            },
+            "windows": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "f:\\MinGw\\bin\\gdb.exe"
+            }
+        }
+    ]
+}
