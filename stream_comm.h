@@ -22,6 +22,7 @@
  * and what the payload of packets should be.
  *
  * @{
+	 -----------------message_id--------------
  */
 /** Request a response from the wallet. */
 #define PACKET_TYPE_PING				0x00
@@ -57,7 +58,7 @@
 #define PACKET_TYPE_GET_MASTER_KEY		0x15
 /** Delete a wallet. */
 #define PACKET_TYPE_DELETE_WALLET		0x16
-/** Initialise device's state. */
+/** Initialize device's state. */
 #define PACKET_TYPE_INITIALIZE			0x17
 /** An address from a wallet (response to #PACKET_TYPE_GET_ADDRESS_PUBKEY
   * or #PACKET_TYPE_NEW_ADDRESS). */

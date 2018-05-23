@@ -14,7 +14,7 @@
   *
   * This file is licensed as described by the file LICENCE.
   */
-#define TEST
+//#define TEST
 //#define TEST_TRANSACTION
 
 

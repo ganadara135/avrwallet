@@ -16,7 +16,7 @@
   * This file is licensed as described by the file LICENCE.
   */
  //#define TEST_PBKDF2
- #define TEST
+ //#define TEST
 
 
 #ifdef TEST_PBKDF2
@@ -63,8 +63,8 @@ void pbkdf2(uint8_t *out, const uint8_t *password, const unsigned int password_l
 	if (salt_length > (SHA512_HASH_LENGTH - 4))
 	{
 		// Salt too long.
-		//fatalError();
-		printf("fatalError()  change later");
+		fatalError();
+		//printf("fatalError()  change later");
 		return;
 	}
 	else

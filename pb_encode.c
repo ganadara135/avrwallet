@@ -88,16 +88,16 @@ bool checkreturn pb_write(pb_ostream_t *stream, const uint8_t *buf, size_t count
     {
         if (stream->bytes_written + count > stream->max_size)
             PB_RETURN_ERROR(stream, "stream full");
-
 #ifdef PB_BUFFER_ONLY
         if (!buf_write(stream, buf, count))
             PB_RETURN_ERROR(stream, "io error");
 #else        
+		//printf(" pb_write() = %d,%c,%x,%p ",*buf,*buf,*buf,*buf);
+		
         if (!stream->callback(stream, buf, count))
             PB_RETURN_ERROR(stream, "io error");
 #endif
     }
-    
     stream->bytes_written += count;
     return true;
 }
@@ -183,7 +183,7 @@ static bool checkreturn encode_array(pb_ostream_t *stream, const pb_field_t *fie
  * in the structure itself. */
 static bool checkreturn encode_static_field(pb_ostream_t *stream,
     const pb_field_t *field, const void *pData)
-{
+{	
     pb_encoder_t func;
     const void *pSize;
     bool dummy = true;
@@ -232,6 +232,8 @@ static bool checkreturn encode_static_field(pb_ostream_t *stream,
 static bool checkreturn encode_callback_field(pb_ostream_t *stream,
     const pb_field_t *field, const void *pData)
 {
+	//printf(" in encode_callback_filed() ");
+	
     const pb_callback_t *callback = (const pb_callback_t*)pData;
     
 #ifdef PB_OLD_CALLBACK_STYLE
@@ -252,15 +254,20 @@ static bool checkreturn encode_callback_field(pb_ostream_t *stream,
 static bool checkreturn encode_field(pb_ostream_t *stream,
     const pb_field_t *field, const void *pData)
 {
+	//printf(" encode_field() ");
+	
     switch (PB_ATYPE(field->type))
     {
         case PB_ATYPE_STATIC:
+			//printf(" PB_ATYPE_STATIC ");
             return encode_static_field(stream, field, pData);
         
         case PB_ATYPE_CALLBACK:
+			//printf(" PB_ATYPE_CALLBACK ");
             return encode_callback_field(stream, field, pData);
         
         default:
+			//printf(" default, invalid filed type ");
             PB_RETURN_ERROR(stream, "invalid field type");
     }
 }
@@ -279,6 +286,8 @@ static bool checkreturn default_extension_encoder(pb_ostream_t *stream,
 static bool checkreturn encode_extension_field(pb_ostream_t *stream,
     const pb_field_t *field, const void *pData)
 {
+	//printf(" in encode_extenstion_filed() ");
+	
     const pb_extension_t *extension = *(const pb_extension_t* const *)pData;
     UNUSED(field);
     
@@ -305,6 +314,8 @@ static bool checkreturn encode_extension_field(pb_ostream_t *stream,
 
 bool checkreturn pb_encode(pb_ostream_t *stream, const pb_field_t fields[], const void *src_struct)
 {
+	//printf(" in pb_encode() ");
+	
     const pb_field_t *field = fields;
     const void *pData = src_struct;
     size_t prev_size = 0;
@@ -323,12 +334,16 @@ bool checkreturn pb_encode(pb_ostream_t *stream, const pb_field_t fields[], cons
         
         if (PB_LTYPE(field->type) == PB_LTYPE_EXTENSION)
         {
+			//printf(" Special case for the extension field placeholder ");
             /* Special case for the extension field placeholder */
             if (!encode_extension_field(stream, field, pData))
                 return false;
         }
         else
         {
+			//printf(" Regular Field ");
+			//printf(" pData : %d,%c,%x,%p \n", pData, pData, pData,pData);
+			
             /* Regular field */
             if (!encode_field(stream, field, pData))
                 return false;
@@ -350,6 +365,9 @@ bool pb_encode_delimited(pb_ostream_t *stream, const pb_field_t fields[], const 
  ********************/
 bool checkreturn pb_encode_varint(pb_ostream_t *stream, uint64_t value)
 {
+	//printf(" in pb_encode_varint ");
+	//printf(" value : %d, %c, %x, %p ", value, value, value, value);
+	
     uint8_t buffer[10];
     size_t i = 0;
     
@@ -369,6 +387,9 @@ bool checkreturn pb_encode_varint(pb_ostream_t *stream, uint64_t value)
 
 bool checkreturn pb_encode_svarint(pb_ostream_t *stream, int64_t value)
 {
+	//printf(" in pb_encode_svarint ");
+	//printf(" value : %d, %c, %x, %p ", value, value, value, value);
+	
     uint64_t zigzagged;
     if (value < 0)
         zigzagged = (uint64_t)(~(value << 1));
@@ -380,6 +401,9 @@ bool checkreturn pb_encode_svarint(pb_ostream_t *stream, int64_t value)
 
 bool checkreturn pb_encode_fixed32(pb_ostream_t *stream, const void *value)
 {
+	//printf(" in pb_encode_fixed32 ");
+	//printf(" value : %d, %c, %x, %p ", value, value, value, value);
+	
     #ifdef __BIG_ENDIAN__
     const uint8_t *bytes = value;
     uint8_t lebytes[4];
@@ -395,6 +419,9 @@ bool checkreturn pb_encode_fixed32(pb_ostream_t *stream, const void *value)
 
 bool checkreturn pb_encode_fixed64(pb_ostream_t *stream, const void *value)
 {
+	//printf(" in pb_encode_fixed64 ");
+	//printf(" value : %d, %c, %x, %p ", value, value, value, value);
+	
     #ifdef __BIG_ENDIAN__
     const uint8_t *bytes = value;
     uint8_t lebytes[8];
@@ -413,13 +440,13 @@ bool checkreturn pb_encode_fixed64(pb_ostream_t *stream, const void *value)
 }
 
 bool checkreturn pb_encode_tag(pb_ostream_t *stream, pb_wire_type_t wiretype, uint32_t field_number)
-{
+{	
     uint64_t tag = wiretype | (field_number << 3);
     return pb_encode_varint(stream, tag);
 }
 
 bool checkreturn pb_encode_tag_for_field(pb_ostream_t *stream, const pb_field_t *field)
-{
+{	
     pb_wire_type_t wiretype;
     switch (PB_LTYPE(field->type))
     {
@@ -506,6 +533,8 @@ bool checkreturn pb_encode_submessage(pb_ostream_t *stream, const pb_field_t fie
 
 bool checkreturn pb_enc_varint(pb_ostream_t *stream, const pb_field_t *field, const void *src)
 {
+	//printf(" in pb_enc_varint() ");
+	
     uint64_t value = 0;
     
     switch (field->data_size)
@@ -517,6 +546,8 @@ bool checkreturn pb_enc_varint(pb_ostream_t *stream, const pb_field_t *field, co
         default: PB_RETURN_ERROR(stream, "invalid data_size");
     }
     
+	//printf(" value : %d,%c,%x,%p ",value,value);
+	
     return pb_encode_varint(stream, value);
 }
 

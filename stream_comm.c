@@ -14,7 +14,7 @@
   *
   * This file is licensed as described by the file LICENCE.
   */
-#define TEST
+//#define TEST
 //#define TEST_STREAM_COMM
 
 #ifdef TEST
@@ -44,6 +44,10 @@
 #include "messages.pb.h"
 #include "sha256.h"
 #include "transaction.h"
+
+
+//static const char *getStringInternal(StringSet set, uint8_t spec);
+
 
 
 // Prototypes for forward-referenced functions.
@@ -218,6 +222,7 @@ bool mainInputStreamCallback(pb_istream_t *stream, uint8_t *buf, size_t count)
   */
 bool mainOutputStreamCallback(pb_ostream_t *stream, const uint8_t *buf, size_t count)
 {
+	//printf("mainOutput=> %d,%x",count,count);
 	writeBytesToStream(buf, count);
 	return true;
 }
@@ -265,10 +270,12 @@ static bool receiveMessage(const pb_field_t fields[], void *dest_struct)
 /** Send a packet.
   * \param message_id The message ID of the packet.
   * \param fields Field description array.
-  * \param src_struct Field data which will be serialised and sent.
+  * \param src_struct Field data which will be serialized and sent.
   */
 static void sendPacket(uint16_t message_id, const pb_field_t fields[], const void *src_struct)
 {
+	//printf(" in sendPacket() ");
+	
 	uint8_t buffer[4];
 	pb_ostream_t substream;
 
@@ -293,6 +300,9 @@ static void sendPacket(uint16_t message_id, const pb_field_t fields[], const voi
 	streamPutOneByte('#');
 	streamPutOneByte((uint8_t)(message_id >> 8));
 	streamPutOneByte((uint8_t)message_id);
+	
+	//printf("s.bytes_written : %d,%x ", substream.bytes_written);
+	
 	writeU32BigEndian(buffer, substream.bytes_written);
 	writeBytesToStream(buffer, 4);
 	// Send actual message.
@@ -313,6 +323,8 @@ static void sendPacket(uint16_t message_id, const pb_field_t fields[], const voi
   */
 bool writeStringCallback(pb_ostream_t *stream, const pb_field_t *field, void * const *arg)
 {
+	//printf(" in writeStringCallback() ");
+	
 	uint16_t i;
 	uint16_t length;
 	char c;
@@ -341,9 +353,12 @@ bool writeStringCallback(pb_ostream_t *stream, const pb_field_t *field, void * c
 	{
 		return false;
 	}
+
 	for (i = 0; i < length; i++)
 	{
 		c = getString(arg_s->next_set, arg_s->next_spec, i);
+		//printf(" %c", c);
+		
 		if (!pb_write(stream, (uint8_t *)&c, 1))
 		{
 			return false;
@@ -404,6 +419,9 @@ static uint16_t receivePacketHeader(void)
 	}
 	getBytesFromStream(buffer, 2);
 	message_id = (uint16_t)(((uint16_t)buffer[0] << 8) | ((uint16_t)buffer[1]));
+	
+	//printf("message_id : %x ",message_id);
+	
 	getBytesFromStream(buffer, 4);
 	payload_length = readU32BigEndian(buffer);
 	// TODO: size_t not generally uint32_t
@@ -542,11 +560,15 @@ static bool otpInterjection(AskUserCommand command)
 #ifdef TEST_STREAM_COMM
 	memcpy(otp, test_otp, OTP_LENGTH);
 #endif // #ifdef TEST_STREAM_COMM
-	displayOTP(command, otp);
+	
+	displayOTP(command, otp);	
+	
 	memset(&otp_request, 0, sizeof(otp_request));
 	sendPacket(PACKET_TYPE_OTP_REQUEST, OtpRequest_fields, &otp_request);
 	message_id = receivePacketHeader();
+	
 	clearOTP();
+	
 	if (message_id == PACKET_TYPE_OTP_ACK)
 	{
 		// Host has just sent OTP.
@@ -874,6 +896,8 @@ bool hashFieldCallback(pb_istream_t *stream, const pb_field_t *field, void **arg
   */
 void processPacket(void)
 {
+	//printf(" processPacket() \n");
+	
 	uint16_t message_id;
 	union MessageBufferUnion message_buffer;
 	PointAffine master_public_key;
@@ -886,21 +910,21 @@ void processPacket(void)
 	bool has_ping_greeting;
 
 	message_id = receivePacketHeader();
+	
+	//printf(" message_id : 0x%02x ",message_id);
 
-	// Checklist for each case:
+	/* Checklist for each case:
 	// 1. Have you checked or dealt with length?
 	// 2. Have you fully read the input stream before writing (to avoid
 	//    deadlocks)?
 	// 3. Have you asked permission from the user (for potentially dangerous
 	//    operations)?
 	// 4. Have you checked for errors from wallet functions?
-	// 5. Have you used the right check for the wallet functions?
-
+	// 5. Have you used the right check for the wallet functions? */
 	memset(&message_buffer, 0, sizeof(message_buffer));
 
 	switch (message_id)
-	{
-
+	{	
 	case PACKET_TYPE_INITIALIZE:
 		// Reset state and report features.
 		session_id_length = 0; // just in case receiveMessage() fails
@@ -913,8 +937,14 @@ void processPacket(void)
 				fatalError(); // sanity check failed
 			}
 			memcpy(session_id, message_buffer.initialize.session_id.bytes, session_id_length);
+			
+			//printf(" session_id : %d ", session_id);
+			//printf(" session_id : %d ", *session_id);
+			
 			prev_transaction_hash_valid = false;
 			sanitiseRam();
+			//printf("---------------");
+			
 			wallet_return = uninitWallet();
 			if (wallet_return == WALLET_NO_ERROR)
 			{
@@ -959,6 +989,7 @@ void processPacket(void)
 	case PACKET_TYPE_PING:
 		// Ping request.
 		receive_failure = receiveMessage(Ping_fields, &(message_buffer.ping));
+		
 		if (!receive_failure)
 		{
 			has_ping_greeting = message_buffer.ping.has_greeting;
@@ -971,6 +1002,9 @@ void processPacket(void)
 				memcpy(ping_greeting, message_buffer.ping.greeting, sizeof(ping_greeting));
 			}
 			ping_greeting[sizeof(ping_greeting) - 1] = '\0'; // ensure that string is terminated
+			
+			//printf(" ping_greeting : %s ",ping_greeting );
+			
 			// Generate ping response message.
 			memset(&message_buffer, 0, sizeof(message_buffer));
 			message_buffer.ping_response.has_echoed_greeting = has_ping_greeting;
@@ -1266,9 +1300,12 @@ void processPacket(void)
 		receive_failure = receiveMessage(GetDeviceUUID_fields, &(message_buffer.get_device_uuid));
 		if (!receive_failure)
 		{
+			//printf(" message_buffer.get_device_uuid : %x ",message_buffer.get_device_uuid);
+			
 			message_buffer.device_uuid.device_uuid.size = UUID_LENGTH;
 			if (nonVolatileRead(message_buffer.device_uuid.device_uuid.bytes, PARTITION_GLOBAL, ADDRESS_DEVICE_UUID, UUID_LENGTH) == NV_NO_ERROR)
 			{
+				//printf(" after nonVolatileRead ");
 				sendPacket(PACKET_TYPE_DEVICE_UUID, DeviceUUID_fields, &(message_buffer.device_uuid));
 			}
 			else
@@ -1324,7 +1361,6 @@ void processPacket(void)
 		readAndIgnoreInput();
 		writeFailureString(STRINGSET_MISC, MISCSTR_UNEXPECTED_PACKET);
 		break;
-
 	}
 }
 
@@ -1359,7 +1395,7 @@ void setTestInputStream(const uint8_t *buffer, uint32_t length)
 }
 
 /** Sets the input stream (what will be read by streamGetOneByte()) to an
-  * infinite stream of zeroes. */
+  * infinite stream of zeros. */
 void setInfiniteZeroInputStream(void)
 {
 	is_infinite_zero_stream = true;
@@ -1368,6 +1404,7 @@ void setInfiniteZeroInputStream(void)
 /** Get one byte from the contents of the buffer set by setTestInputStream().
   * \return The next byte from the test stream buffer.
   */
+/*
 uint8_t streamGetOneByte(void)
 {
 	if (is_infinite_zero_stream)
@@ -1389,7 +1426,7 @@ uint8_t streamGetOneByte(void)
 		return stream[stream_ptr++];
 	}
 }
-
+*/
 /** Simulate the sending of a byte by displaying its value.
   * \param one_byte The byte to send.
   */
@@ -1398,204 +1435,9 @@ void streamPutOneByte(uint8_t one_byte)
 	printf(" %02x", (int)one_byte);
 }
 
-/** Helper for getString().
-  * \param set See getString().
-  * \param spec See getString().
-  * \return A pointer to the actual string.
-  */
-static const char *getStringInternal(StringSet set, uint8_t spec)
-{
-	if (set == STRINGSET_MISC)
-	{
-		switch (spec)
-		{
-		case MISCSTR_VENDOR:
-			return "Vendor";
-			break;
-		case MISCSTR_PERMISSION_DENIED_USER:
-			return "Permission denied by user";
-			break;
-		case MISCSTR_INVALID_PACKET:
-			return "Invalid packet";
-			break;
-		case MISCSTR_PARAM_TOO_LARGE:
-			return "Parameter too large";
-			break;
-		case MISCSTR_PERMISSION_DENIED_HOST:
-			return "Action cancelled by host";
-			break;
-		case MISCSTR_UNEXPECTED_PACKET:
-			return "Unexpected message received";
-			break;
-		case MISCSTR_OTP_MISMATCH:
-			return "OTP mismatch";
-			break;
-		case MISCSTR_CONFIG:
-			return "Config string";
-			break;
-		default:
-			assert(0);
-		}
-	}
-	else if (set == STRINGSET_WALLET)
-	{
-		switch (spec)
-		{
-		case WALLET_FULL:
-			return "Wallet has run out of space";
-			break;
-		case WALLET_EMPTY:
-			return "Wallet has nothing in it";
-			break;
-		case WALLET_READ_ERROR:
-			return "Read error";
-			break;
-		case WALLET_WRITE_ERROR:
-			return "Write error";
-			break;
-		case WALLET_NOT_THERE:
-			return "Wallet doesn't exist";
-			break;
-		case WALLET_NOT_LOADED:
-			return "Wallet not loaded";
-			break;
-		case WALLET_INVALID_HANDLE:
-			return "Invalid address handle";
-			break;
-		case WALLET_BACKUP_ERROR:
-			return "Seed could not be written to specified device";
-			break;
-		case WALLET_RNG_FAILURE:
-			return "Failure in random number generation system";
-			break;
-		case WALLET_INVALID_WALLET_NUM:
-			return "Invalid wallet number specified";
-			break;
-		case WALLET_INVALID_OPERATION:
-			return "Operation not allowed on this wallet";
-			break;
-		case WALLET_ALREADY_EXISTS:
-			return "Wallet already exists";
-			break;
-		case WALLET_BAD_ADDRESS:
-			return "Bad non-volatile address or partition number";
-			break;
-		default:
-			assert(0);
-		}
-	}
-	else if (set == STRINGSET_TRANSACTION)
-	{
-		switch (spec)
-		{
-		case TRANSACTION_INVALID_FORMAT:
-			return "Format of transaction is unknown or invalid";
-			break;
-		case TRANSACTION_TOO_MANY_INPUTS:
-			return "Too many inputs in transaction";
-			break;
-		case TRANSACTION_TOO_MANY_OUTPUTS:
-			return "Too many outputs in transaction";
-			break;
-		case TRANSACTION_TOO_LARGE:
-			return "Transaction's size is too large";
-			break;
-		case TRANSACTION_NON_STANDARD:
-			return "Transaction is non-standard";
-			break;
-		case TRANSACTION_INVALID_AMOUNT:
-			return "Invalid output amount in transaction";
-			break;
-		case TRANSACTION_INVALID_REFERENCE:
-			return "Invalid transaction reference";
-			break;
-		default:
-			assert(0);
-		}
-	}
-	else
-	{
-		assert(0);
-	}
 
-	// GCC is smart enough to realise that the following line will never
-	// be executed.
-#ifndef __GNUC__
-	return NULL;
-#endif // #ifndef __GNUC__
-}
 
-/** Get the length of one of the device's strings.
-  * \param set Specifies which set of strings to use; should be
-  *            one of #StringSetEnum.
-  * \param spec Specifies which string to get the character from. The
-  *             interpretation of this depends on the value of set;
-  *             see #StringSetEnum for clarification.
-  * \return The length of the string, in number of characters.
-  */
-uint16_t getStringLength(StringSet set, uint8_t spec)
-{
-	return (uint16_t)strlen(getStringInternal(set, spec));
-}
 
-/** Obtain one character from one of the device's strings.
-  * \param set Specifies which set of strings to use; should be
-  *            one of #StringSetEnum.
-  * \param spec Specifies which string to get the character from. The
-  *             interpretation of this depends on the value of set;
-  *             see #StringSetEnum for clarification.
-  * \param pos The position of the character within the string; 0 means first,
-  *            1 means second etc.
-  * \return The character from the specified string.
-  */
-char getString(StringSet set, uint8_t spec, uint16_t pos)
-{
-	assert(pos < getStringLength(set, spec));
-	return getStringInternal(set, spec)[pos];
-}
-
-/** Display human-readable description of an action on stdout.
-  * \param command The action to display. See #AskUserCommandEnum.
-  */
-static void printAction(AskUserCommand command)
-{
-	printf("\n");
-	switch (command)
-	{
-	case ASKUSER_NEW_WALLET:
-		printf("Create new wallet? ");
-		break;
-	case ASKUSER_NEW_ADDRESS:
-		printf("Create new address? ");
-		break;
-	case ASKUSER_SIGN_TRANSACTION:
-		printf("Sign transaction? ");
-		break;
-	case ASKUSER_FORMAT:
-		printf("Format storage area? ");
-		break;
-	case ASKUSER_CHANGE_NAME:
-		printf("Change wallet name? ");
-		break;
-	case ASKUSER_BACKUP_WALLET:
-		printf("Do a wallet backup? ");
-		break;
-	case ASKUSER_RESTORE_WALLET:
-		printf("Restore wallet from backup? ");
-		break;
-	case ASKUSER_CHANGE_KEY:
-		printf("Change wallet encryption key? ");
-		break;
-	case ASKUSER_GET_MASTER_KEY:
-		printf("Reveal master public key? ");
-		break;
-	case ASKUSER_DELETE_WALLET:
-		printf("Delete existing wallet? ");
-		break;
-	default:
-		fatalError();
-	}
-}
 
 /** Ask user if they want to allow some action.
   * \param command The action to ask the user about. See #AskUserCommandEnum.
@@ -1621,23 +1463,7 @@ bool userDenied(AskUserCommand command)
 	}
 }
 
-/** Display a short (maximum 8 characters) one-time password for the user to
-  * see. This one-time password is used to reduce the chance of a user
-  * accidentally doing something stupid.
-  * \param command The action to ask the user about. See #AskUserCommandEnum.
-  * \param otp The one-time password to display.
-  */
-void displayOTP(AskUserCommand command, char *otp)
-{
-	printAction(command);
-	printf("OTP: %s\n", otp);
-}
 
-/** Clear the OTP (one-time password) shown by displayOTP() from the
-  * display. */
-void clearOTP(void)
-{
-}
 
 /** This will be called whenever something very unexpected occurs. This
   * function must not return. */
@@ -1937,6 +1763,10 @@ static const uint8_t test_stream_get_entropy100[] = {
 /** Ping (get version). */
 static const uint8_t test_stream_ping[] = {
 0x23, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x0a, 0x03, 0x4d, 0x6f, 0x6f};
+/* 패킷 구성, (1,2)번은 구분자 #,
+   3, 4번은 message_id
+   5,6,7,8 번은 실제 메시지크기 내용 전달(8번엔 표기)
+   9번 이후는 실제 메시지  */
 
 /** Get master public key and allow button press. */
 static const uint8_t test_get_master_public_key[] = {
@@ -1984,7 +1814,7 @@ int main(void)
 	initWalletTest();
 	initialiseDefaultEntropyPool();
 
-	printf("Initialising...\n");
+	printf("Initializing...\n");
 	SEND_ONE_TEST_STREAM(test_stream_init);
 	printf("Formatting...\n");
 	SEND_ONE_TEST_STREAM(test_stream_format);
@@ -2054,3 +1884,239 @@ int main(void)
 
 #endif // #ifdef TEST_STREAM_COMM
 
+
+/** Helper for getString().
+  * \param set See getString().
+  * \param spec See getString().
+  * \return A pointer to the actual string.
+  */
+/*
+static const char *getStringInternal(StringSet set, uint8_t spec)
+{
+	if (set == STRINGSET_MISC)
+	{
+		switch (spec)
+		{
+		case MISCSTR_VENDOR:
+			return "Vendor";
+			break;
+		case MISCSTR_PERMISSION_DENIED_USER:
+			return "Permission denied by user";
+			break;
+		case MISCSTR_INVALID_PACKET:
+			return "Invalid packet";
+			break;
+		case MISCSTR_PARAM_TOO_LARGE:
+			return "Parameter too large";
+			break;
+		case MISCSTR_PERMISSION_DENIED_HOST:
+			return "Action canceled by host";
+			break;
+		case MISCSTR_UNEXPECTED_PACKET:
+			return "Unexpected message received";
+			break;
+		case MISCSTR_OTP_MISMATCH:
+			return "OTP mismatch";
+			break;
+		case MISCSTR_CONFIG:
+			return "Config string";
+			break;
+		default:
+			//assert(0);
+			return "error";
+		}
+	}
+	else if (set == STRINGSET_WALLET)
+	{
+		switch (spec)
+		{
+		case WALLET_FULL:
+			return "Wallet has run out of space";
+			break;
+		case WALLET_EMPTY:
+			return "Wallet has nothing in it";
+			break;
+		case WALLET_READ_ERROR:
+			return "Read error";
+			break;
+		case WALLET_WRITE_ERROR:
+			return "Write error";
+			break;
+		case WALLET_NOT_THERE:
+			return "Wallet doesn't exist";
+			break;
+		case WALLET_NOT_LOADED:
+			return "Wallet not loaded";
+			break;
+		case WALLET_INVALID_HANDLE:
+			return "Invalid address handle";
+			break;
+		case WALLET_BACKUP_ERROR:
+			return "Seed could not be written to specified device";
+			break;
+		case WALLET_RNG_FAILURE:
+			return "Failure in random number generation system";
+			break;
+		case WALLET_INVALID_WALLET_NUM:
+			return "Invalid wallet number specified";
+			break;
+		case WALLET_INVALID_OPERATION:
+			return "Operation not allowed on this wallet";
+			break;
+		case WALLET_ALREADY_EXISTS:
+			return "Wallet already exists";
+			break;
+		case WALLET_BAD_ADDRESS:
+			return "Bad non-volatile address or partition number";
+			break;
+		default:
+			//assert(0);
+			return "error";
+		}
+	}
+	else if (set == STRINGSET_TRANSACTION)
+	{
+		switch (spec)
+		{
+		case TRANSACTION_INVALID_FORMAT:
+			return "Format of transaction is unknown or invalid";
+			break;
+		case TRANSACTION_TOO_MANY_INPUTS:
+			return "Too many inputs in transaction";
+			break;
+		case TRANSACTION_TOO_MANY_OUTPUTS:
+			return "Too many outputs in transaction";
+			break;
+		case TRANSACTION_TOO_LARGE:
+			return "Transaction's size is too large";
+			break;
+		case TRANSACTION_NON_STANDARD:
+			return "Transaction is non-standard";
+			break;
+		case TRANSACTION_INVALID_AMOUNT:
+			return "Invalid output amount in transaction";
+			break;
+		case TRANSACTION_INVALID_REFERENCE:
+			return "Invalid transaction reference";
+			break;
+		default:
+			//assert(0);
+			return "error";
+		}
+	}
+	else
+	{
+		//assert(0);
+		return "error";
+	}
+
+	// GCC is smart enough to realize that the following line will never
+	// be executed.
+#ifndef __GNUC__
+	return NULL;
+#endif // #ifndef __GNUC__
+}
+*/
+
+
+/** Get the length of one of the device's strings.
+  * \param set Specifies which set of strings to use; should be
+  *            one of #StringSetEnum.
+  * \param spec Specifies which string to get the character from. The
+  *             interpretation of this depends on the value of set;
+  *             see #StringSetEnum for clarification.
+  * \return The length of the string, in number of characters.
+  */
+/*
+uint16_t getStringLength(StringSet set, uint8_t spec)
+{
+	return (uint16_t)strlen(getStringInternal(set, spec));
+}
+*/
+
+
+/** Display a short (maximum 8 characters) one-time password for the user to
+  * see. This one-time password is used to reduce the chance of a user
+  * accidentally doing something stupid.
+  * \param command The action to ask the user about. See #AskUserCommandEnum.
+  * \param otp The one-time password to display.
+  */
+void displayOTP(AskUserCommand command, char *otp)
+{
+	printAction(command);
+	printf("OTP: %s\n", otp);
+}
+
+
+
+/** Clear the OTP (one-time password) shown by displayOTP() from the
+  * display. */
+void clearOTP(void)
+{
+}
+
+
+/** Obtain one character from one of the device's strings.
+  * \param set Specifies which set of strings to use; should be
+  *            one of #StringSetEnum.
+  * \param spec Specifies which string to get the character from. The
+  *             interpretation of this depends on the value of set;
+  *             see #StringSetEnum for clarification.
+  * \param pos The position of the character within the string; 0 means first,
+  *            1 means second etc.
+  * \return The character from the specified string.
+  */
+/*
+char getString(StringSet set, uint8_t spec, uint16_t pos)
+{
+	//assert(pos < getStringLength(set, spec));
+	if( pos < getStringLength(set, spec)){
+		printf("assert(pos < getStringLength(set, spec))");
+		exit(0);
+	}
+	return getStringInternal(set, spec)[pos];
+}
+*/
+/** Display human-readable description of an action on stdout.
+  * \param command The action to display. See #AskUserCommandEnum.
+  */
+//static void printAction(AskUserCommand command)
+void printAction(AskUserCommand command)
+{
+	printf("\n");
+	switch (command)
+	{
+	case ASKUSER_NEW_WALLET:
+		printf("Create new wallet? ");
+		break;
+	case ASKUSER_NEW_ADDRESS:
+		printf("Create new address? ");
+		break;
+	case ASKUSER_SIGN_TRANSACTION:
+		printf("Sign transaction? ");
+		break;
+	case ASKUSER_FORMAT:
+		printf("Format storage area? ");
+		break;
+	case ASKUSER_CHANGE_NAME:
+		printf("Change wallet name? ");
+		break;
+	case ASKUSER_BACKUP_WALLET:
+		printf("Do a wallet backup? ");
+		break;
+	case ASKUSER_RESTORE_WALLET:
+		printf("Restore wallet from backup? ");
+		break;
+	case ASKUSER_CHANGE_KEY:
+		printf("Change wallet encryption key? ");
+		break;
+	case ASKUSER_GET_MASTER_KEY:
+		printf("Reveal master public key? ");
+		break;
+	case ASKUSER_DELETE_WALLET:
+		printf("Delete existing wallet? ");
+		break;
+	default:
+		fatalError();
+	}
+}

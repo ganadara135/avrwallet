@@ -211,6 +211,8 @@ extern void displayOTP(AskUserCommand command, char *otp);
   * display. */
 extern void clearOTP(void);
 
+
+
 /** Fill buffer with 32 random bytes from a hardware random number generator.
   * \param buffer The buffer to fill. This should have enough space for 32
   *               bytes.

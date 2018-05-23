@@ -242,8 +242,7 @@ static WalletErrors readWalletRecord(WalletRecord *wallet_record, uint32_t addre
   */
 static WalletErrors writeCurrentWalletRecord(uint32_t address)
 {
-	if (nonVolatileWrite(
-		(uint8_t *)&(current_wallet.unencrypted),
+	if (nonVolatileWrite((uint8_t *)&(current_wallet.unencrypted),
 		PARTITION_ACCOUNTS,
 		address + offsetof(WalletRecord, unencrypted),
 		sizeof(current_wallet.unencrypted)) != NV_NO_ERROR)
@@ -376,6 +375,8 @@ WalletErrors initWallet(uint32_t wallet_spec, const uint8_t *password, const uns
   */
 WalletErrors uninitWallet(void)
 {
+//	printf(" check uninitWallet() ");
+	
 	clearParentPublicKeyCache();
 	wallet_loaded = false;
 	is_hidden_wallet = false;
@@ -1188,8 +1189,11 @@ uint32_t getNumberOfWallets(void)
 	return num_wallets;
 }
 
-#ifdef TEST
 
+
+
+
+#ifdef TEST
 /** Size of global partition, in bytes. */
 #define TEST_GLOBAL_PARTITION_SIZE		512
 /** Size of accounts partition, in bytes. */

@@ -10,7 +10,7 @@
 
 #include "common.h"
 #include "ecdsa.h"
-#include "hwinterface.h"
+//#include "hwinterface.h"
 
 /** A value which has a one-to-one association with Bitcoin addresses in a
   * given wallet. Address handles are more efficient to deal with than the
@@ -60,6 +60,8 @@ typedef enum WalletErrorsEnum
 	WALLET_READ_ERROR			=	3,
 	/** Problem(s) writing to non-volatile storage device. */
 	WALLET_WRITE_ERROR			=	4,
+	/** Problem(s) writing to non-volatile storage device. */
+	WALLET_ADDRESS_NOT_FOUND	=	5,
 	/** There is no wallet at the specified location (or, wrong encryption key
 	  * used). */
 	WALLET_NOT_THERE			=	6,

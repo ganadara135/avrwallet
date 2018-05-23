@@ -36,7 +36,7 @@
 #include "bignum256.h"
 #include "transaction.h"
 #include "prandom.h"
-#include "hwinterface.h"
+#include "hwinterface.h"     // header file of eeprom.c
 #include "storage_common.h"
 
 
@@ -89,6 +89,8 @@ static void setParentPublicKeyFromPrivateKey(BigNum256 parent_private_key)
   */
 void clearParentPublicKeyCache(void)
 {
+//	printf(" check clearParentPublicKeyCache() ");
+	
 	memset(&cached_parent_public_key, 0xff, sizeof(cached_parent_public_key)); // just to be sure
 	memset(&cached_parent_public_key, 0, sizeof(cached_parent_public_key));
 	cached_parent_public_key_valid = false;
@@ -541,6 +543,19 @@ int hardwareRandom32Bytes(uint8_t *buffer)
 }
 
 #endif // #ifdef TEST
+
+// my edition 
+/*
+int hardwareRandom32Bytes(uint8_t *buffer)
+{
+	memset(buffer, 0, 32);
+	//if (!broken_hwrng)
+	{
+		buffer[0] = (uint8_t)rand();
+	}
+	return 8;
+}
+*/
 
 #if defined(TEST_PRANDOM) || defined(TEST_WALLET)
 //#if defined(TEST_WALLET)

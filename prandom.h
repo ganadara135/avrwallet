@@ -12,9 +12,9 @@
 #include "bignum256.h"
 #include "storage_common.h"
 
-//#ifdef TEST
+#ifdef TEST
 #include "ecdsa.h"
-//#endif // #ifdef TEST
+#endif // #ifdef TEST
 
 /** Length, in bytes, of the seed that generateDeterministic256() requires.
   * \warning This must be a multiple of 16 in order for backupWallet() to work
