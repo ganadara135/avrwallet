@@ -125,6 +125,8 @@ ISR(USART0_RX_vect)
 {
 	uint8_t data = UDR0;
 	//printf("RX = %c[%x,%d]\n",data,data,data);
+	//UDR1 = data;
+	tx1Char(data);
 	
 	if (rx_buffer_full)
 	{

@@ -26,12 +26,8 @@ const fs = require('fs');
 //const fsPromise = require('fs').promises;
 //var readline = require('node-readline.js');
 var readline = require('readline');
+var async = require('async');
 
-var readlineHandle = readline.createInterface({
-    input:process.stdin,
-    output:process.stdout
-});
-readlineHandle.setPrompt('> ');
 
 
 args
@@ -58,7 +54,7 @@ const RX_ACKNOWLEDGE_INTERVAL	=		32;
 
 // Remaining number of bytes that can be transmitted before listening for
 // acknowledge
-let tx_bytes_to_ack = new Int32Array();
+let tx_bytes_to_ack;// = new Int32Array();
 // Remaining number of bytes that can be received before other side expects an
 // acknowledge
 let rx_bytes_to_ack;// = new Int8Array;
@@ -68,9 +64,8 @@ let rx_bytes_to_ack;// = new Int8Array;
 let filename = new String();// = new Array(256);
 let newline;
 //let abortVal;
-//let packet_buffer;// = new Int8Array();
-let packet_buffer;// = new Buffer();
-let packet_buffer2;
+//let packet_buffer_file;// = new Int8Array();
+let packet_buffer_file;// = new Buffer();
 let fileSize;
 
 
@@ -89,22 +84,16 @@ const openOptions = Object.freeze({
   highWaterMark: 64 * 1024
 });
 
-
 const serialport = new SerialPort(args.port,openOptions); // open the serial port:
 
-//let output = 32; // ASCII space; lowest printable character
-//let byteCount = 0; // number of bytes read
-
-function onOpen() {
-  console.log("Hardware BitCoin wallet tester\n");
-  serialport.update({options:"57600"}, console.log("baudRate set as 57600"));
-
-  tx_bytes_to_ack = DEFAULT_ACKNOWLEDGE_INTERVAL;
-	rx_bytes_to_ack = 8;//DEFAULT_ACKNOWLEDGE_INTERVAL;
-
+function callInputFilename(){
+  var readlineHandle = readline.createInterface({
+    input:process.stdin,
+    output:process.stdout
+  });
+  readlineHandle.setPrompt('> ');
   // Get filename from user.
   console.log("Enter fileName to send (blank to quit): ");
-  readlineHandle.resume();
   readlineHandle.question("Input fileName ", function(answer){
 
     filename = answer;
@@ -130,16 +119,24 @@ function onOpen() {
         fs.readFile("testdata/"+filename,(err, data) => {
           if (err) throw err;
 
-          packet_buffer = data;
-         // console.log("packet_buffer : ", packet_buffer.indexOf(0));
-          console.log("packet_buffer.length : ", packet_buffer.length);
-          console.log("packet_buffer.bytelength : ", packet_buffer.byteLength);
+          packet_buffer_file = data;
+         // console.log("packet_buffer_file : ", packet_buffer_file.indexOf(0));
+          console.log("packet_buffer_file.length : ", packet_buffer_file.length);
+          console.log("packet_buffer_file.bytelength : ", packet_buffer_file.byteLength);
       
-          displayPacket();
+          displayPacket(data);
           console.log("Sending packet: ");
           // Send the packet.
-          sendByte(fileSize);
-      
+          sendByte(data);
+/*
+          let bufferAsk = Buffer.alloc(4);
+          rx_bytes_to_ack = 128;//메시지중 최대값//RX_ACKNOWLEDGE_INTERVAL;
+          serialport.write(Buffer.from('ff','hex'));
+
+          bufferAsk.writeUInt32LE(rx_bytes_to_ack);//offset + 4 bytes => make 1 bytes
+          console.log(" bufferAsk: ",bufferAsk);
+          serialport.write(bufferAsk);
+  */        
         });
       
         fs.close(fd, (err) => {
@@ -151,125 +148,62 @@ function onOpen() {
   });
 }
 
+function onOpen() {
+  console.log("Hardware BitCoin wallet tester\n");
+  serialport.update({options:"57600"}, console.log("baudRate set as 57600"));
+
+  tx_bytes_to_ack = 6;//DEFAULT_ACKNOWLEDGE_INTERVAL;
+  //rx_bytes_to_ack = 8;//DEFAULT_ACKNOWLEDGE_INTERVAL;
+  rx_bytes_to_ack = 6;//DEFAULT_ACKNOWLEDGE_INTERVAL;
+  callInputFilename(); 
+}
+
 let packet_buffer_received = Buffer.alloc(0);
-let ack_buffer = Buffer.alloc(2);
-let temp = Buffer.alloc(84);
 let startOf0xff;
-let chkLength;
+let temp = Buffer.alloc(84);
+let callCheck0xff = false;
 
-
-// same fuction like streamGetOneByte() on ARV device
-function onData(data) {       
+function onData(data) {
   console.log("data : ", data);
-  console.log("packet_buffer_recieved : ", packet_buffer_received);
   packet_buffer_received = Buffer.concat([packet_buffer_received,data]);
-
-  console.log("rx_bytes_to_ack:  ",rx_bytes_to_ack)
-  rx_bytes_to_ack--;
-	if (!rx_bytes_to_ack)	{
-    let bufferAsk = Buffer.alloc(4);
-		rx_bytes_to_ack = 128;//메시지중 최대값//RX_ACKNOWLEDGE_INTERVAL;
-    //ack_buffer[0] = 0xff;
-    serialport.write(Buffer.from('ff','hex'));
-
-    bufferAsk.writeUInt32LE(rx_bytes_to_ack); // make as 4 bytes
-    //bufferAsk.writeUInt32BE(rx_bytes_to_ack); // make as 4 bytes
-    console.log(" bufferAsk: ",bufferAsk);
-    serialport.write(bufferAsk);
-  }
+  console.log("packet_buffer_recieved : ", packet_buffer_received);
+  console.log("packet_buffer_received.length:  ",packet_buffer_received.length)
  
   startOf0xff = packet_buffer_received.indexOf(0xff);
-  
-  if (packet_buffer_received.length > 8 && startOf0xff != -1){
-    temp = packet_buffer_received.slice(startOf0xff+5);
-    console.log("temp : ", temp);
-    console.log("temp.toString() : ", temp.toString('utf8'));
-    if (temp.length > 9){      
-      chkLength = temp.readUInt32BE(4);
-      
-      console.log("chkLengthBE > ",chkLength.toString(16));
-      console.log("real message length => ", packet_buffer_received[5+8-1]);
-  
-      if(packet_buffer_received[5+8-1] != undefined && 
-        packet_buffer_received[5+8-1] === packet_buffer_received.length-5-8 ){
-       
-        console.log("Receive Byte ");
-        packet_buffer = temp;
-        packet_buffer_received = 0;
-        //console.log("packet_buffer_received.length0=> ",packet_buffer_received.length);
-        displayPacket();
-      }
-    }
-  }else{
-    temp = packet_buffer_received;
-    console.log("temp : ", temp);
-    console.log("temp.toString() : ", temp.toString('utf8'));
-    if (temp.length > 9){      
-      chkLength = temp.readUInt32BE(4);
-      
-      console.log("chkLengthBE > ",chkLength.toString(16));
-      console.log("real message length => ", packet_buffer_received[8-1]);
-  
-      if(packet_buffer_received[8-1] != undefined && 
-        packet_buffer_received[8-1] === packet_buffer_received.length-8 ){
-        console.log("Receive Byte ");
-        packet_buffer = temp;
-        packet_buffer_received = 0;
-        //console.log("packet_buffer_received.length0=> ",packet_buffer_received.length);
-        displayPacket();
+  console.log("startOf0xff => ", startOf0xff)
+  if(startOf0xff != -1 && packet_buffer_received.length >= 5){  
+    console.log("request tx_bytes ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")      
+    let temp = packet_buffer_received.slice(startOf0xff+5);
+    let tx_chk = packet_buffer_received.slice(startOf0xff,5);    
+    packet_buffer_received = Buffer.alloc(temp.length,temp);
+    
+    // 상대에서 받을 수 있는 바이트량 받아오기
+    tx_bytes_to_ack = tx_chk.readUInt32LE(1);//offset + 4 bytes => make 1 bytes
+  }
+  let firstOf0x23 = packet_buffer_received.indexOf(0x23);
+  let secondOf0x23Buffer = packet_buffer_received.slice(firstOf0x23,1);
+ // console.log("firstOf0x23", firstOf0x23)
+  console.log("secondOf0x23", secondOf0x23Buffer)
+  if(secondOf0x23Buffer.toString()  === '#' &&
+  packet_buffer_received[firstOf0x23+7] != undefined &&
+  packet_buffer_received[firstOf0x23+7]+8 > packet_buffer_received.length &&
+  callCheck0xff != true && rx_bytes_to_ack < packet_buffer_received.length){
+    callCheck0xff = true;
+    console.log("request rx_bytes ###########################################")
+    let bufferAsk = Buffer.alloc(4);
+		rx_bytes_to_ack = 128;//메시지중 최대값//RX_ACKNOWLEDGE_INTERVAL;
+    serialport.write(Buffer.from('ff','hex'));
 
-        let rl = readline.createInterface({
-          input: process.stdin,
-          output: process.stdout
-        });
-        // Get filename from user.
-        console.log("Enter fileName to send (blank to quit): ");        
-        
-        rl.question("Input fileName ", function(answer){
-
-          filename = answer;
-          console.log("filename is ", filename);
-          //readlineHandle.pause();
-          rl.close();
-
-          let regExp = /\\[0nr]| /gim; // \0 null, \n new line, \r carriage return
-        
-          console.log(" check : ", filename.search(regExp));
-
-          if(filename.search(regExp) == -1 ){
-            console.log(" search() ");
-            fs.open(Buffer.from("testdata/"+filename),'r', (err,fd) => {
-              if(err) throw err;
-              
-              fs.fstat(fd, (err, stat) => {
-                if (err) throw err;
-                fileSize = stat.size;
-                console.log(" file size : ", fileSize);
-              });
-
-              fs.readFile("testdata/"+filename,(err, data) => {
-                if (err) throw err;
-
-                packet_buffer = data;
-                // console.log("packet_buffer : ", packet_buffer.indexOf(0));
-                console.log("packet_buffer.length : ", packet_buffer.length);
-                console.log("packet_buffer.bytelength : ", packet_buffer.byteLength);
-            
-                displayPacket();
-                console.log("Sending packet: ");
-
-                sendByte(fileSize);
-            
-              });
-            
-              fs.close(fd, (err) => {
-                if (err) throw err;
-              });              
-            });
-          }
-        });
-      }
-    }
+    bufferAsk.writeUInt32LE(rx_bytes_to_ack);//offset + 4 bytes => make 1 bytes
+    console.log(" bufferAsk: ",bufferAsk);
+    serialport.write(bufferAsk);
+  }else if(packet_buffer_received[firstOf0x23+7]+8 === packet_buffer_received.length){
+    console.log(" complete ")
+    callCheck0xff = false;
+    displayPacket(packet_buffer_received);
+    packet_buffer_received = Buffer.alloc(0);
+    rx_bytes_to_ack -= packet_buffer_received.length;
+    callInputFilename();
   }
 }
 
@@ -289,47 +223,76 @@ serialport.on('data', onData);
 serialport.on('close', onClose);
 serialport.on('error', onError);
 
+/*
 
-function sendByte(file_length)
+function tx_check(){
+  return new Promise((resolve) => { 
+    async.whilst(
+      function () { 
+        console.log(" call While() ")
+        return tx_bytes_to_ack <= 0},
+      function (callback) {
+        console.log("tx_bytes_to_ack in setTimeout() ", tx_bytes_to_ack)
+        startOf0xff = packet_buffer_received.indexOf(0xff);
+        console.log("startOf0xff => ", startOf0xff)
+        if(startOf0xff != -1 && packet_buffer_received.length >= 5){        
+          let temp = packet_buffer_received.slice(startOf0xff+5);
+          let tx_chk = packet_buffer_received.slice(startOf0xff,5);    
+          packet_buffer_received = Buffer.alloc(temp.length,temp);
+          
+          // 상대에서 받을 수 있는 바이트량 받아오기
+          tx_bytes_to_ack = tx_chk.readUInt32LE(1);//offset + 4 bytes => make 1 bytes
+          
+          console.log("tx_chk : ", tx_chk)
+          console.log("temp.toString() : ", temp.toString('utf8'));
+          console.log("packet_buffer_received : ", packet_buffer_received.toString('utf8'));
+          console.log("temp.length : ", temp.length);
+          console.log("packet_buffer_received.length : ", packet_buffer_received.length);
+        }
+        callback(null,tx_bytes_to_ack);
+      },
+      function (err, n) {
+        if (err) throw err;
+        console.log('n > ', n)
+      }
+    )
+    resolve("resolve");
+  });
+}
+*/
+async function sendByte(packet)
 {
-  let packet_bufferS = new Buffer(64);
-  let data_size;
-  let i;
+  let packet_bufferS  = Buffer.alloc(packet.length);
+  packet.copy(packet_bufferS);
 
-  while (file_length > 0){
-    data_size = file_length;
-    if(data_size > 63){
-      data_size = 63;
-    }
-
-    for(i=0; i<=data_size; i++){
-      packet_bufferS[i] = packet_buffer[i];
-      console.log(packet_bufferS[i].toString(16));
-    }
-    console.log("sendByte: ",packet_bufferS.toString());
-    if (serialport.write(packet_bufferS,(error,bytesWritten) => {
-      if (error) throw error;
-      console.log(" written complete ",bytesWritten);
-    }));
-    file_length -= data_size;
-    //console.log(" file_length => ", file_length);
-  }
+  if(serialport.write(packet,(error,bytesWritten) => {
+    if (error) throw error;
+    console.log(" written complete ",bytesWritten);
+    tx_bytes_to_ack -= packet.length;   
+    //tx_check();
+  }));
+/*
+  console.log(" check tx_bytes_to_ask", tx_bytes_to_ack)
+  if (tx_bytes_to_ack  <= 0)	{
+    let x = await tx_check();
+    console.log('x : ',x)
+  } */
 }
 
 // Display packet contents on screen
-function displayPacket() //packet_data, buffer_length)
+function displayPacket(packet) //packet_data, buffer_length)
 {
 	let command;
 	let one_byte;
 	let length;
   let i;
 
-  command = ((packet_buffer[2] << 8) | packet_buffer[3]);
+  command = ((packet[2] << 8) | packet[3]);
   // Read a 32-bit unsigned integer from the byte array specified by in.
   // The bytes will be read in a big-endian format.
-  //length = packet_buffer.readUInt32LE(1);
-  length = packet_buffer.readUInt32BE(4); // aggregate 4 bytes into 1 bytes
-  //length = packet_buffer[4];
+  //length = packet_buffer_file.readUInt32LE(1);
+  length = packet.readUInt32BE(4); // aggregate 4 bytes into 1 bytes
+  //length = packet_buffer_file[4];
   console.log("command : ", command.toString(16));
   console.log("length(hex) : ", length.toString(16));
   console.log("length(dec) : ", length.toString(10));
@@ -343,9 +306,9 @@ function displayPacket() //packet_data, buffer_length)
 		if (i && !(i & 15))	{
 			console.log("\n");
 		}
-		one_byte = packet_buffer[i + 8];
+		one_byte = packet[i + 8];
 		console.log(" 0x", one_byte.toString(16));
-		if ((i + 8) >= packet_buffer.length) {
+		if ((i + 8) >= packet.length) {
 			console.log(" ***unexpected end of packet***");
 			break;
 		}
@@ -356,14 +319,14 @@ function displayPacket() //packet_data, buffer_length)
 		if (i && !(i & 15))	{
 			console.log(" ");
 		}
-		one_byte = packet_buffer[i + 8];
+		one_byte = packet[i + 8];
 		if ((one_byte < 32) || (one_byte > 126)) {
 			console.log(".");
 		}
 		else {
-			console.log( String.fromCharCode(packet_buffer[i + 8]));
+			console.log( String.fromCharCode(packet[i + 8]));
 		}
-		if ((i + 8) >= packet_buffer.length) {
+		if ((i + 8) >= packet.length) {
 			break;
 		}
 	}
@@ -453,3 +416,128 @@ function packetCommandToText(command) {
       return "unknown";
 	}
 }
+
+
+/*
+let packet_buffer_received = Buffer.alloc(0);
+let ack_buffer = Buffer.alloc(2);
+let temp = Buffer.alloc(84);
+let startOf0xff;
+let chkLength;
+
+
+// same fuction like streamGetOneByte() on ARV device
+function onData(data) {       
+  console.log("data : ", data);
+  console.log("packet_buffer_recieved : ", packet_buffer_received);
+  packet_buffer_received = Buffer.concat([packet_buffer_received,data]);
+
+  console.log("rx_bytes_to_ack:  ",rx_bytes_to_ack)
+  rx_bytes_to_ack--;
+	if (!rx_bytes_to_ack)	{
+    let bufferAsk = Buffer.alloc(4);
+		rx_bytes_to_ack = 128;//메시지중 최대값//RX_ACKNOWLEDGE_INTERVAL;
+    //ack_buffer[0] = 0xff;
+    serialport.write(Buffer.from('ff','hex'));
+
+    bufferAsk.writeUInt32LE(rx_bytes_to_ack); // make as 4 bytes
+    //bufferAsk.writeUInt32BE(rx_bytes_to_ack); // make as 4 bytes
+    console.log(" bufferAsk: ",bufferAsk);
+    serialport.write(bufferAsk);
+  }
+ 
+  startOf0xff = packet_buffer_received.indexOf(0xff);
+  
+  if (packet_buffer_received.length > 8 && startOf0xff != -1){
+    temp = packet_buffer_received.slice(startOf0xff+5);
+    console.log("temp : ", temp);
+    console.log("temp.toString() : ", temp.toString('utf8'));
+    if (temp.length > 9){      
+      chkLength = temp.readUInt32BE(4);
+      
+      console.log("chkLengthBE > ",chkLength.toString(16));
+      console.log("real message length => ", packet_buffer_received[5+8-1]);
+  
+      if(packet_buffer_received[5+8-1] != undefined && 
+        packet_buffer_received[5+8-1] === packet_buffer_received.length-5-8 ){
+       
+        console.log("Receive Byte ");
+        packet_buffer_file = temp;
+        packet_buffer_received = 0;
+        //console.log("packet_buffer_received.length0=> ",packet_buffer_received.length);
+        displayPacket();
+      }
+    }
+  }else{
+    temp = packet_buffer_received;
+    console.log("temp : ", temp);
+    console.log("temp.toString() : ", temp.toString('utf8'));
+    if (temp.length > 9){      
+      chkLength = temp.readUInt32BE(4);
+      
+      console.log("chkLengthBE > ",chkLength.toString(16));
+      console.log("real message length => ", packet_buffer_received[8-1]);
+  
+      if(packet_buffer_received[8-1] != undefined && 
+        packet_buffer_received[8-1] === packet_buffer_received.length-8 ){
+        console.log("Receive Byte ");
+        packet_buffer_file = temp;
+        packet_buffer_received = 0;
+        //console.log("packet_buffer_received.length0=> ",packet_buffer_received.length);
+        displayPacket();
+
+        let rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout
+        });
+        // Get filename from user.
+        console.log("Enter fileName to send (blank to quit): ");        
+        
+        rl.question("Input fileName ", function(answer){
+
+          filename = answer;
+          console.log("filename is ", filename);
+          //readlineHandle.pause();
+          rl.close();
+
+          let regExp = /\\[0nr]| /gim; // \0 null, \n new line, \r carriage return
+        
+          console.log(" check : ", filename.search(regExp));
+
+          if(filename.search(regExp) == -1 ){
+            console.log(" search() ");
+            fs.open(Buffer.from("testdata/"+filename),'r', (err,fd) => {
+              if(err) throw err;
+              
+              fs.fstat(fd, (err, stat) => {
+                if (err) throw err;
+                fileSize = stat.size;
+                console.log(" file size : ", fileSize);
+              });
+
+              fs.readFile("testdata/"+filename,(err, data) => {
+                if (err) throw err;
+
+                packet_buffer_file = data;
+                // console.log("packet_buffer_file : ", packet_buffer_file.indexOf(0));
+                console.log("packet_buffer_file.length : ", packet_buffer_file.length);
+                console.log("packet_buffer_file.bytelength : ", packet_buffer_file.byteLength);
+            
+                displayPacket();
+                console.log("Sending packet: ");
+
+                sendByte(fileSize);
+            
+              });
+            
+              fs.close(fd, (err) => {
+                if (err) throw err;
+              });              
+            });
+          }
+        });
+      }
+    }
+  }
+}
+*/
