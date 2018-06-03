@@ -152,29 +152,32 @@ function onOpen() {
   console.log("Hardware BitCoin wallet tester\n");
   serialport.update({options:"57600"}, console.log("baudRate set as 57600"));
 
-  tx_bytes_to_ack = 6;//DEFAULT_ACKNOWLEDGE_INTERVAL;
+  tx_bytes_to_ack = DEFAULT_ACKNOWLEDGE_INTERVAL;
   //rx_bytes_to_ack = 8;//DEFAULT_ACKNOWLEDGE_INTERVAL;
-  rx_bytes_to_ack = 6;//DEFAULT_ACKNOWLEDGE_INTERVAL;
+  rx_bytes_to_ack = DEFAULT_ACKNOWLEDGE_INTERVAL;
   callInputFilename(); 
 }
 
 let packet_buffer_received = Buffer.alloc(0);
 let startOf0xff;
 let temp = Buffer.alloc(84);
-let callCheck0xff = false;
+let callCheck0x23 = false;
 
 function onData(data) {
   console.log("data : ", data);
   packet_buffer_received = Buffer.concat([packet_buffer_received,data]);
   console.log("packet_buffer_recieved : ", packet_buffer_received);
   console.log("packet_buffer_received.length:  ",packet_buffer_received.length)
+  //tx_bytes_to_ack -= data.length;
+  rx_bytes_to_ack -= data.length;
+  console.log("rx_bytes_to_ack : ", rx_bytes_to_ack);
  
   startOf0xff = packet_buffer_received.indexOf(0xff);
   console.log("startOf0xff => ", startOf0xff)
-  if(startOf0xff != -1 && packet_buffer_received.length >= 5){  
+  if(startOf0xff != -1 && packet_buffer_received.length >= startOf0xff+5){  
     console.log("request tx_bytes ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")      
-    let temp = packet_buffer_received.slice(startOf0xff+5);
-    let tx_chk = packet_buffer_received.slice(startOf0xff,5);    
+    let tx_chk = packet_buffer_received.slice(startOf0xff,5);
+    let temp = packet_buffer_received.slice(startOf0xff+5);    
     packet_buffer_received = Buffer.alloc(temp.length,temp);
     
     // 상대에서 받을 수 있는 바이트량 받아오기
@@ -183,12 +186,14 @@ function onData(data) {
   let firstOf0x23 = packet_buffer_received.indexOf(0x23);
   let secondOf0x23Buffer = packet_buffer_received.slice(firstOf0x23,1);
  // console.log("firstOf0x23", firstOf0x23)
-  console.log("secondOf0x23", secondOf0x23Buffer)
-  if(secondOf0x23Buffer.toString()  === '#' &&
+//  console.log("secondOf0x23Buffer : ", secondOf0x23Buffer)
+  /*if(secondOf0x23Buffer.toString()  === '#' &&
   packet_buffer_received[firstOf0x23+7] != undefined &&
   packet_buffer_received[firstOf0x23+7]+8 > packet_buffer_received.length &&
-  callCheck0xff != true && rx_bytes_to_ack < packet_buffer_received.length){
-    callCheck0xff = true;
+  callCheck0x23 != true && rx_bytes_to_ack < packet_buffer_received.length){*/
+  if(callCheck0x23 != true && rx_bytes_to_ack <= 0 && 
+    packet_buffer_received.length != packet_buffer_received[firstOf0x23+7]){
+    callCheck0x23 = true;
     console.log("request rx_bytes ###########################################")
     let bufferAsk = Buffer.alloc(4);
 		rx_bytes_to_ack = 128;//메시지중 최대값//RX_ACKNOWLEDGE_INTERVAL;
@@ -199,12 +204,17 @@ function onData(data) {
     serialport.write(bufferAsk);
   }else if(packet_buffer_received[firstOf0x23+7]+8 === packet_buffer_received.length){
     console.log(" complete ")
-    callCheck0xff = false;
+    callCheck0x23 = false;
     displayPacket(packet_buffer_received);
     packet_buffer_received = Buffer.alloc(0);
-    rx_bytes_to_ack -= packet_buffer_received.length;
+    //tx_bytes_to_ack -= packet_buffer_received.length;
+    //rx_bytes_to_ack -= packet_buffer_received.length;
     callInputFilename();
   }
+  /*else if(packet_buffer_received.length > 8 && 
+    packet_buffer_received[firstOf0x23+3] === 0x50){
+    console.log(" Press Button on AVR bread board. ")
+  }*/
 }
 
 function onClose() {
@@ -223,60 +233,27 @@ serialport.on('data', onData);
 serialport.on('close', onClose);
 serialport.on('error', onError);
 
-/*
 
-function tx_check(){
-  return new Promise((resolve) => { 
-    async.whilst(
-      function () { 
-        console.log(" call While() ")
-        return tx_bytes_to_ack <= 0},
-      function (callback) {
-        console.log("tx_bytes_to_ack in setTimeout() ", tx_bytes_to_ack)
-        startOf0xff = packet_buffer_received.indexOf(0xff);
-        console.log("startOf0xff => ", startOf0xff)
-        if(startOf0xff != -1 && packet_buffer_received.length >= 5){        
-          let temp = packet_buffer_received.slice(startOf0xff+5);
-          let tx_chk = packet_buffer_received.slice(startOf0xff,5);    
-          packet_buffer_received = Buffer.alloc(temp.length,temp);
-          
-          // 상대에서 받을 수 있는 바이트량 받아오기
-          tx_bytes_to_ack = tx_chk.readUInt32LE(1);//offset + 4 bytes => make 1 bytes
-          
-          console.log("tx_chk : ", tx_chk)
-          console.log("temp.toString() : ", temp.toString('utf8'));
-          console.log("packet_buffer_received : ", packet_buffer_received.toString('utf8'));
-          console.log("temp.length : ", temp.length);
-          console.log("packet_buffer_received.length : ", packet_buffer_received.length);
-        }
-        callback(null,tx_bytes_to_ack);
-      },
-      function (err, n) {
-        if (err) throw err;
-        console.log('n > ', n)
-      }
-    )
-    resolve("resolve");
-  });
-}
-*/
 async function sendByte(packet)
 {
-  let packet_bufferS  = Buffer.alloc(packet.length);
-  packet.copy(packet_bufferS);
+  //let packet_bufferS  = Buffer.alloc(packet.length);
+  //packet.copy(packet_bufferS);
 
   if(serialport.write(packet,(error,bytesWritten) => {
     if (error) throw error;
     console.log(" written complete ",bytesWritten);
-    tx_bytes_to_ack -= packet.length;   
-    //tx_check();
+    tx_bytes_to_ack -= packet.length;  
+    /*if (tx_bytes_to_ack  <= 0)	{ 
+      console.log("request tx_bytes11111 ###########################################")
+      let bufferAsk = Buffer.alloc(4);
+      tx_bytes_to_ack = 128;//메시지중 최대값//RX_ACKNOWLEDGE_INTERVAL;
+      serialport.write(Buffer.from('ff','hex'));
+
+      bufferAsk.writeUInt32LE(tx_bytes_to_ack);//offset + 4 bytes => make 1 bytes
+      console.log(" bufferAsk: ",bufferAsk);
+      serialport.write(bufferAsk);
+    }*/
   }));
-/*
-  console.log(" check tx_bytes_to_ask", tx_bytes_to_ack)
-  if (tx_bytes_to_ack  <= 0)	{
-    let x = await tx_check();
-    console.log('x : ',x)
-  } */
 }
 
 // Display packet contents on screen
@@ -395,6 +372,7 @@ function packetCommandToText(command) {
     case 0x3a:
       return "Features";
     case 0x50:
+      console.log(" Press Button on AVR bread board. ")
       return "ButtonRequest";
     case 0x51:
       return "ButtonAck";
@@ -417,6 +395,43 @@ function packetCommandToText(command) {
 	}
 }
 
+/*
+
+function tx_check(){
+  return new Promise((resolve) => { 
+    async.whilst(
+      function () { 
+        console.log(" call While() ")
+        return tx_bytes_to_ack <= 0},
+      function (callback) {
+        console.log("tx_bytes_to_ack in setTimeout() ", tx_bytes_to_ack)
+        startOf0xff = packet_buffer_received.indexOf(0xff);
+        console.log("startOf0xff => ", startOf0xff)
+        if(startOf0xff != -1 && packet_buffer_received.length >= 5){        
+          let temp = packet_buffer_received.slice(startOf0xff+5);
+          let tx_chk = packet_buffer_received.slice(startOf0xff,5);    
+          packet_buffer_received = Buffer.alloc(temp.length,temp);
+          
+          // 상대에서 받을 수 있는 바이트량 받아오기
+          tx_bytes_to_ack = tx_chk.readUInt32LE(1);//offset + 4 bytes => make 1 bytes
+          
+          console.log("tx_chk : ", tx_chk)
+          console.log("temp.toString() : ", temp.toString('utf8'));
+          console.log("packet_buffer_received : ", packet_buffer_received.toString('utf8'));
+          console.log("temp.length : ", temp.length);
+          console.log("packet_buffer_received.length : ", packet_buffer_received.length);
+        }
+        callback(null,tx_bytes_to_ack);
+      },
+      function (err, n) {
+        if (err) throw err;
+        console.log('n > ', n)
+      }
+    )
+    resolve("resolve");
+  });
+}
+*/
 
 /*
 let packet_buffer_received = Buffer.alloc(0);

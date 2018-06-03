@@ -169,9 +169,8 @@ static inline void setArduinoPinInput(const uint8_t pin)
 	if (pin < 8)
 	{
 		bit = (uint8_t)(bit << pin);
-		DDRD = (uint8_t)(DDRD & ~bit);
-		PORTD |= bit;
-		printf(" setPinInput()  ");
+		DDRD = (uint8_t)(DDRD & ~bit);	// 해당비트만 출력으로 설정.
+		PORTD |= bit;					// PORT PIN is driven high(one)
 	}
 	else
 	{
@@ -191,9 +190,7 @@ static inline uint8_t sampleArduinoPin(const uint8_t pin)
 
 	bit = 1;
 	if (pin < 8)
-	{
-		printf(" sampleArduinoPin() ");
-		
+	{		
 		bit = (uint8_t)(bit << pin);
 		return (uint8_t)(PIND & bit);
 	}
@@ -240,19 +237,50 @@ static bool transaction_fee_set;
   * if #transaction_fee_set is true. */
 static char transaction_fee_amount[TEXT_AMOUNT_LENGTH];
 
-/*
+
 //Interrupt Service Routine for INT0
 ISR(INT0_vect)
 {
-	printf("INT0_vect_num : %d ", INT0_vect_num );
-	//PORTD   |= P;
-	sampleArduinoPin(ACCEPT_PIN);
-	_delay_ms(500);
+	//accept_button = !accept_button;
+	//cancel_button = !cancel_button;
+
+//	_delay_ms(2000);
+/*	
+	// Back light on
+	tx1Char('$');
+	tx1Char('$');
+	tx1Char('L');
+	tx1Char('1');
+	tx1Char('\r');
+*/	bool temp;
+	
+	if (accept_button == true )
+	{
+		temp = true;
+	}
+	else
+	{
+		temp = false;
+	}
+	if ((accept_button && temp) || (!accept_button && !temp))
+	{
+		// Mismatching state; accumulate debounce counter until threshold
+		// is reached, then make states consistent.
+		accept_debounce++;
+		if (accept_debounce == DEBOUNCE_COUNT)
+		{
+			accept_button = !accept_button;
+		}
+	}
+	else
+	{
+		accept_debounce = 0;
+	}	
 }
-*/
+
 /** This does the scrolling and checks the state of the buttons. */
 //ISR(TIMER0_COMPA_vect)
-//ISR(TIMER1_COMPA_vect)
+/*
 ISR(TIMER0_COMP_vect)  
 {
 	bool temp;
@@ -330,7 +358,7 @@ ISR(TIMER0_COMP_vect)
 		cancel_debounce = 0;
 	}
 }
-
+*/
 /** Clear LCD of all text. */
 static void clearLcd(void)
 {
@@ -339,8 +367,14 @@ static void clearLcd(void)
 	scroll_pos = 0;
 	scroll_to_left = false;
 	scroll_counter = SCROLL_SPEED;
-	writeArduinoPin(RS_PIN, 0);
-	write8(0x01); // clear display
+	//writeArduinoPin(RS_PIN, 0);
+	//write8(0x01); // clear display
+	// LCD clear
+//	tx1Char('$');
+//	tx1Char('$');
+//	tx1Char('C');
+//	tx1Char('S');
+//	tx1Char('\r');
 	_delay_ms(10);
 }
 
@@ -349,9 +383,8 @@ static void clearLcd(void)
   * interrupt every 5 ms.
   */
 void initLcdAndInput(void)
-{
-	printf(" initLcdAndInput() ");
-	
+{	
+	/*
 	cli();
 //	TCCR0A = _BV(WGM01); // CTC mode
 	TCCR1A = _BV(WGM01); // CTC mode
@@ -360,18 +393,20 @@ void initLcdAndInput(void)
 	TCNT0 = 0;
 //	OCR0A = 77; // frequency = (16000000 / 1024) / (77 + 1) = 200 Hz
 	OCR0 = 77; // frequency = (16000000 / 1024) / (77 + 1) = 200 Hz
-//	TIMSK0 = _BV(OCIE0A); // enable interrupt on compare match A
-	//TIMSK = _BV(OCIE1A); // enable interrupt on compare match A
-	ETIMSK = _BV(OCIE0); // enable interrupt on compare match
+	//TIMSK0 = _BV(OCIE0A); // enable interrupt on compare match A
+	TIMSK = _BV(OCIE1A); // enable interrupt on compare match A 
+	//ETIMSK = _BV(OCIE0); // enable interrupt on compare match
 	scroll_counter = 1000; // make sure no attempt at scrolling is made yet
 	MCUCR = (uint8_t)(MCUCR & ~_BV(PUD)); //PUD Pull-up Disable
-	setArduinoPinInput(ACCEPT_PIN);
-	setArduinoPinInput(CANCEL_PIN);
+	*/
+	//setArduinoPinInput(ACCEPT_PIN);
+	//setArduinoPinInput(CANCEL_PIN);
 	accept_button = false;
 	cancel_button = false;
 	accept_debounce = 0;
 	cancel_debounce = 0;
-	sei();
+	/*
+	sei();	
 	writeArduinoPin(E_PIN, 0);
 	writeArduinoPin(RS_PIN, 0);
 	_delay_ms(80);
@@ -387,6 +422,9 @@ void initLcdAndInput(void)
 	clearLcd();
 	write8(0x06); // entry mode set: increment, no display shift
 	list_index = 0;
+	*/
+	clearLcd();
+	list_index = 0;
 }
 
 /** Set LCD cursor position to the start of a line.
@@ -396,15 +434,31 @@ void initLcdAndInput(void)
   */
 static void gotoStartOfLine(uint8_t line)
 {
-	writeArduinoPin(RS_PIN, 0);
+	//writeArduinoPin(RS_PIN, 0);
 	if (line == 0)
 	{
-		write8(0x80);
+		//write8(0x80);
+		// set Cursor position;  Row (1~4);  Colum (1~16)
+	/*	tx1Char('$');
+		tx1Char('G');
+		tx1Char(',');
+		tx1Char('1');
+		tx1Char(',');
+		tx1Char('1');
+		tx1Char('\r');
 	}
 	else
 	{
-		write8(0xc0);
-	}
+		//write8(0xc0);
+		// set Cursor position;  Row (1~4);  Colum (1~16)
+		tx1Char('$');
+		tx1Char('G');
+		tx1Char(',');
+		tx1Char('2');
+		tx1Char(',');
+		tx1Char('1');
+		tx1Char('\r');
+*/	}
 	current_column = 0;
 }
 
@@ -419,7 +473,7 @@ static void writeString(const char *str, bool is_progmem)
 {
 	char c;
 
-	writeArduinoPin(RS_PIN, 1);
+	//writeArduinoPin(RS_PIN, 1);
 	if (is_progmem)
 	{
 		c = (char)pgm_read_byte(str);
@@ -431,7 +485,8 @@ static void writeString(const char *str, bool is_progmem)
 	str++;
 	while ((c != 0) && (current_column < 40))
 	{
-		write8((uint8_t)c);
+		//write8((uint8_t)c);
+		tx1Char(c);
 		if (is_progmem)
 		{
 			c = (char)pgm_read_byte(str);
@@ -518,8 +573,7 @@ static bool waitForButtonPress(void)
 	bool current_cancel_button;
 
 	do
-	{
-		// Copy to avoid race condition.
+	{	// Copy to avoid race condition.
 		current_accept_button = accept_button;
 		current_cancel_button = cancel_button;
 	} while (!current_accept_button && !current_cancel_button);
@@ -724,7 +778,7 @@ bool userDenied(AskUserCommand command)
 		r = true; // unconditionally deny
 	}
 
-	clearLcd();
+	//clearLcd();
 	return r;
 }
 

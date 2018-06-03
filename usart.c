@@ -116,15 +116,13 @@ void initUsart(void)
 //	PRR = (uint8_t)(PRR & ~_BV(PRUSART0));
 */
 	sei();
-//	stdout = stdin = &mystdio;
 }
 
 /** Interrupt service routine which is called whenever the USART receives
   * a byte. */
 ISR(USART0_RX_vect)
 {
-	uint8_t data = UDR0;
-	//printf("RX = %c[%x,%d]\n",data,data,data);
+	uint8_t data = UDR0;	
 	//UDR1 = data;
 	tx1Char(data);
 	
@@ -132,8 +130,6 @@ ISR(USART0_RX_vect)
 	{
 		// Uh oh, no space left in receive buffer. Still need to read UDR0
 		// to make USART happy.
-//		uint8_t temp;
-//		temp = UDR0;
 		rx_buffer_overrun = true;
 	}
 	else
@@ -155,8 +151,6 @@ ISR(USART0_RX_vect)
   */
 ISR(USART0_UDRE_vect)
 {
-	//printf(" chk USART0_UDRE ");
-	
 	if ((tx_buffer_start != tx_buffer_end) || tx_buffer_full)
 	{
 		UDR0 = tx_buffer[tx_buffer_start];
@@ -303,6 +297,8 @@ uint8_t streamGetOneByte(void)
 	}
 	if (rx_buffer_overrun)
 	{
+		//tx1Char("rx_buffer_overrun");
+		
 		streamReadOrWriteError();
 	}
 	return one_byte;
@@ -369,16 +365,14 @@ static NOINLINE void sanitiseRamInternal(void)
 //	printf(" &__data_end => %p  ",&__data_end);
 	cli();
 
-	//for (i = (uint16_t)&__bss_start; i < (uint16_t)&i; i++)
-	for (i = (uint16_t)&__bss_start; i < (uint16_t)&__data_end; i++)
+	for (i = (uint16_t)&__bss_start; i < (uint16_t)&i; i++)
+	//for (i = (uint16_t)&__bss_start; i < (uint16_t)&__data_end; i++)
 	{		
 		*((uint8_t *)i) = 0xff; // just to be sure
-		//*((uint8_t *)i) = 0x7f; // just to be sure
 		*((uint8_t *)i) = 0;
 		//*((uint16_t *)i) = 0;
 	}
 	sei();
-//	printf(" end of this ");
 }
 
 /** Overwrite anything in RAM which could contain sensitive data.

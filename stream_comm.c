@@ -445,6 +445,8 @@ static bool buttonInterjection(AskUserCommand command)
 	memset(&button_request, 0, sizeof(button_request));
 	sendPacket(PACKET_TYPE_BUTTON_REQUEST, ButtonRequest_fields, &button_request);
 	message_id = receivePacketHeader();
+	tx1Char("M");
+	tx1Char(message_id);
 	if (message_id == PACKET_TYPE_BUTTON_ACK)
 	{
 		// Host will allow button press.
@@ -896,8 +898,6 @@ bool hashFieldCallback(pb_istream_t *stream, const pb_field_t *field, void **arg
   */
 void processPacket(void)
 {
-	//printf(" processPacket() \n");
-	
 	uint16_t message_id;
 	union MessageBufferUnion message_buffer;
 	PointAffine master_public_key;
@@ -911,8 +911,6 @@ void processPacket(void)
 
 	message_id = receivePacketHeader();
 	
-	//printf(" message_id : 0x%02x ",message_id);
-
 	/* Checklist for each case:
 	// 1. Have you checked or dealt with length?
 	// 2. Have you fully read the input stream before writing (to avoid
@@ -937,13 +935,9 @@ void processPacket(void)
 				fatalError(); // sanity check failed
 			}
 			memcpy(session_id, message_buffer.initialize.session_id.bytes, session_id_length);
-			
-			//printf(" session_id : %d ", session_id);
-			//printf(" session_id : %d ", *session_id);
-			
+					
 			prev_transaction_hash_valid = false;
 			sanitiseRam();
-			//printf("---------------");
 			
 			wallet_return = uninitWallet();
 			if (wallet_return == WALLET_NO_ERROR)
@@ -1002,8 +996,6 @@ void processPacket(void)
 				memcpy(ping_greeting, message_buffer.ping.greeting, sizeof(ping_greeting));
 			}
 			ping_greeting[sizeof(ping_greeting) - 1] = '\0'; // ensure that string is terminated
-			
-			//printf(" ping_greeting : %s ",ping_greeting );
 			
 			// Generate ping response message.
 			memset(&message_buffer, 0, sizeof(message_buffer));
@@ -1158,9 +1150,16 @@ void processPacket(void)
 		if (!receive_failure)
 		{
 			permission_denied = buttonInterjection(ASKUSER_FORMAT);
+			tx1Char("P");
+			tx1Char(">");
+			tx1Char(permission_denied);
 			if (!permission_denied)
 			{
-				invalid_otp = otpInterjection(ASKUSER_FORMAT);
+				//invalid_otp = otpInterjection(ASKUSER_FORMAT);
+				invalid_otp = false;
+				tx1Char("O");
+				tx1Char(">");
+				tx1Char(invalid_otp);	
 				if (!invalid_otp)
 				{
 					if (initialiseEntropyPool(message_buffer.format_wallet_area.initial_entropy_pool.bytes))
@@ -1299,13 +1298,10 @@ void processPacket(void)
 		// Get device UUID.
 		receive_failure = receiveMessage(GetDeviceUUID_fields, &(message_buffer.get_device_uuid));
 		if (!receive_failure)
-		{
-			//printf(" message_buffer.get_device_uuid : %x ",message_buffer.get_device_uuid);
-			
+		{						
 			message_buffer.device_uuid.device_uuid.size = UUID_LENGTH;
 			if (nonVolatileRead(message_buffer.device_uuid.device_uuid.bytes, PARTITION_GLOBAL, ADDRESS_DEVICE_UUID, UUID_LENGTH) == NV_NO_ERROR)
 			{
-				//printf(" after nonVolatileRead ");
 				sendPacket(PACKET_TYPE_DEVICE_UUID, DeviceUUID_fields, &(message_buffer.device_uuid));
 			}
 			else

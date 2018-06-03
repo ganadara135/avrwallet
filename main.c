@@ -50,7 +50,7 @@ void tx0Char(char message){
 // UART1 을 이용한 출력
 void tx1Char(char message){
 	
-	//while (((UCSR1A>>UDRE1)&0x01) == 0) ;  // UDRE, data register empty
+	while (((UCSR1A>>UDRE1)&0x01) == 0) ;  // UDRE, data register empty
 	UDR1 = message;
 }
 
@@ -189,21 +189,22 @@ int main(void){
 	 init_devices();
 	 initUsart();
 	 initAdc();
-	 //initLcdAndInput();
+	 initLcdAndInput();
 	 
+	 //{ Interrupt Key setting Part
+	 // DDR 기본적으로 0 으로 세팅되어 있음
 	 DDRD |= 0<<PD0;  //PORTD0을 입력으로 설정,  BUTTON용
  
 	 //falling edge에서 인터럽트 발생
 	 EICRA  &= ~(1<<ISC00);
 	 EICRA  |= 1<<ISC01;
-	 EIMSK |= 1<<INT0;  //External Interrupt Request 0 Enable
+	 EIMSK  |= 1<<INT0;  //External Interrupt Request 0 Enable
 						//PD0에 스위치 연결, 풀업 저항을 추가한 회로여야 한다.
 	 sei();      //Global Interrupt Enable
-	
+	 //}
 
-	//printf(" call main() ");
 	//__DATE__, __TIME__   Compile date time.
-	printf("UART RX Interrupt Test Program.  [%s %s]\n",__DATE__,__TIME__);
+	printf("UART RX Interrupt Test Program.  [%s %s]\r",__DATE__,__TIME__);
 	
 	do
 	{
@@ -221,6 +222,7 @@ int main(void){
 	} while (true);
 }
 
+/*
 //Interrupt Service Routine for INT0
 ISR(INT0_vect)
 {
@@ -236,3 +238,4 @@ ISR(INT0_vect)
 	//delay_ms(500);
 	
 }
+*/
