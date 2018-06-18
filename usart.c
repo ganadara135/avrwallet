@@ -368,7 +368,8 @@ static NOINLINE void sanitiseRamInternal(void)
 	for (i = (uint16_t)&__bss_start; i < (uint16_t)&i; i++)
 	//for (i = (uint16_t)&__bss_start; i < (uint16_t)&__data_end; i++)
 	{		
-		*((uint8_t *)i) = 0xff; // just to be sure
+		//*((uint8_t *)i) = 0xff; // just to be sure
+		*((uint8_t *)i) = 0;
 		*((uint8_t *)i) = 0;
 		//*((uint16_t *)i) = 0;
 	}

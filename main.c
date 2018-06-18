@@ -211,14 +211,11 @@ int main(void){
 		processPacket();
 /*		delay_ms(1000);
 		printf("PIND : %d,%02x, ",PIND,PIND);
-		//printf("PUSH_BTN : %x ",PUSH_BTN);
-		
 		if(PIND & PUSH_BTN)
 			printf(" unpressed ");
 		else
-			printf(" pressed ");
-*/			
-			
+			printf(" pressed ");*/
+				
 	} while (true);
 }
 

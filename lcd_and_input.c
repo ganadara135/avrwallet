@@ -23,6 +23,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <string.h>
+#include <time.h>
 
 #include "common.h"
 #include "hwinterface.h"   // header file of eeprom.c
@@ -86,120 +87,6 @@
 
 #define _BV(bit)  (1 << (bit))
 
-/** Set one of the digital output pins based on the Arduino pin mapping.
-  * \param pin The Arduino pin number (0 to 13 inclusive) to set.
-  * \param value Non-zero will set the pint high and zero will set the pin
-  *              low.
-  */
-static inline void writeArduinoPin(const uint8_t pin, const uint8_t value)
-{
-	uint8_t bit;
-
-	bit = 1;
-	if (pin < 8)
-	{
-		bit = (uint8_t)(bit << pin);
-		DDRD |= bit;
-		if (value)
-		{
-			PORTD |= bit;
-		}
-		else
-		{
-			PORTD = (uint8_t)(PORTD & ~bit);
-		}
-	}
-	else
-	{
-		bit = (uint8_t)(bit << (pin - 8));
-		DDRB |= bit;
-		if (value)
-		{
-			PORTB |= bit;
-		}
-		else
-		{
-			PORTB = (uint8_t)(PORTB & ~bit);
-		}
-	}
-}
-
-/** Write the least-significant 4 bits of value to the HD44780.
-  * See page 49 of the datasheet for EN timing. All delays have at least
-  * a 2x safety factor.
-  * \param value The 4 bit value to write.
-  */
-static void write4(uint8_t value)
-{
-	writeArduinoPin(D4_PIN, (uint8_t)(value & 0x01));
-	writeArduinoPin(D5_PIN, (uint8_t)(value & 0x02));
-	writeArduinoPin(D6_PIN, (uint8_t)(value & 0x04));
-	writeArduinoPin(D7_PIN, (uint8_t)(value & 0x08));
-	_delay_us(2);
-	writeArduinoPin(E_PIN, 0);
-	_delay_us(2);
-	writeArduinoPin(E_PIN, 1);
-	_delay_us(2);
-	writeArduinoPin(E_PIN, 0);
-	_delay_us(2);
-	// From page 24 of the datasheet, most commands require 37 us to complete.
-	_delay_us(74);
-}
-
-/** Write 8 bits to the HD44780 using write4() twice.
-  * \param value The 8 bit value to write.
-  * \warning Make sure register select (#RS_PIN) is set to an appropriate
-  *          value before calling this function.
-  */
-static void write8(uint8_t value)
-{
-	write4((uint8_t)(value >> 4));
-	write4(value);
-}
-
-/** Set one of the Arduino digital I/O pins to be an input pin with
-  * internal pull-up enabled.
-  * \param pin The Arduino pin number to set as an input pin.
-  */
-static inline void setArduinoPinInput(const uint8_t pin)
-{
-	uint8_t bit;
-
-	bit = 1;
-	if (pin < 8)
-	{
-		bit = (uint8_t)(bit << pin);
-		DDRD = (uint8_t)(DDRD & ~bit);	// 해당비트만 출력으로 설정.
-		PORTD |= bit;					// PORT PIN is driven high(one)
-	}
-	else
-	{
-		bit = (uint8_t)(bit << (pin - 8));
-		DDRB = (uint8_t)(DDRB & ~bit);
-		PORTB |= bit;
-	}
-}
-
-/** Read one of the Arduino digital I/O pins.
-  * \param pin The Arduino pin number to read.
-  * \return Non-zero if the pin is high, 0 if it is low.
-  */
-static inline uint8_t sampleArduinoPin(const uint8_t pin)
-{
-	uint8_t bit;
-
-	bit = 1;
-	if (pin < 8)
-	{		
-		bit = (uint8_t)(bit << pin);
-		return (uint8_t)(PIND & bit);
-	}
-	else
-	{
-		bit = (uint8_t)(bit << (pin - 8));
-		return (uint8_t)(PINB & bit);
-	}
-}
 
 /** 0-based column index. This specifies which column on the LCD the next
   * character will appear in. */
@@ -237,47 +124,79 @@ static bool transaction_fee_set;
   * if #transaction_fee_set is true. */
 static char transaction_fee_amount[TEXT_AMOUNT_LENGTH];
 
-
-//Interrupt Service Routine for INT0
-ISR(INT0_vect)
-{
-	//accept_button = !accept_button;
-	//cancel_button = !cancel_button;
-
-//	_delay_ms(2000);
-/*	
-	// Back light on
-	tx1Char('$');
-	tx1Char('$');
-	tx1Char('L');
-	tx1Char('1');
-	tx1Char('\r');
-*/	bool temp;
-	
-	if (accept_button == true )
-	{
-		temp = true;
-	}
-	else
-	{
-		temp = false;
-	}
-	if ((accept_button && temp) || (!accept_button && !temp))
-	{
-		// Mismatching state; accumulate debounce counter until threshold
-		// is reached, then make states consistent.
-		accept_debounce++;
-		if (accept_debounce == DEBOUNCE_COUNT)
-		{
-			accept_button = !accept_button;
-		}
-	}
-	else
-	{
-		accept_debounce = 0;
-	}	
+void millis_init();
+/** See page 46 of the datasheet for the HD44780 initialisation sequence. All
+  * delays have a 2x safety factor. This also sets up timer 0 to fire an
+  * interrupt every 5 ms.
+  */
+void initLcdAndInput(void)
+{	
+	/*
+	//cli();
+//	TCCR0A = _BV(WGM01); // CTC mode
+	TCCR1A = _BV(WGM01); // CTC mode
+//	TCCR0B = _BV(CS02) | _BV(CS00); // prescaler 1024
+	TCCR1B = _BV(CS02) | _BV(CS00); // prescaler 1024
+	TCNT0 = 0;
+//	OCR0A = 77; // frequency = (16000000 / 1024) / (77 + 1) = 200 Hz
+	OCR0 = 77; // frequency = (16000000 / 1024) / (77 + 1) = 200 Hz
+	//TIMSK0 = _BV(OCIE0A); // enable interrupt on compare match A
+	TIMSK = _BV(OCIE1A); // enable interrupt on compare match A 
+	//ETIMSK = _BV(OCIE0); // enable interrupt on compare match
+	scroll_counter = 1000; // make sure no attempt at scrolling is made yet
+	MCUCR = (uint8_t)(MCUCR & ~_BV(PUD)); //PUD Pull-up Disable
+	*/
+	//setArduinoPinInput(ACCEPT_PIN);
+	//setArduinoPinInput(CANCEL_PIN);
+//	cli();
+//	TCCR0 = _BV(CS02) | _BV(CS00); // prescaler 1024  // 내부 클럭
+	//TCCR0 &= ~0x07;	//Clock Select Bit Description 
+//	TCNT0 = 0;	/* Timer/Counter 0 */
+//	OCR0 = 77;//frequency= (16000000 / 1024) / (77 + 1)= 200 Hz/*Output Compare Register 0 */
+	//TIFR;
+//	TIMSK = _BV(OCIE0); // enable interrupt on compare match 0
+	accept_button = false;
+	cancel_button = false;
+	accept_debounce = 0;
+	cancel_debounce = 0;
+//	sei();
+	clearLcd();
+	list_index = 0;
+	millis_init();
 }
 
+const int duration = 1000;
+unsigned long pre_time = 0;
+unsigned long cur_time = 0;
+//time_t current_time;
+
+uint64_t millis();
+//Interrupt Service Routine for INT0  // Button
+ISR(INT0_vect)
+{
+	//current_time = time(NULL);	
+	cur_time = millis();
+	if(abs(cur_time - pre_time) >= duration){
+		tx1Char('Z');
+		pre_time = cur_time;
+		
+		tx1Char('B');
+		tx1Char(TCNT0);
+		
+		tx1Char('A');
+		accept_button = !accept_button;
+		cancel_button = !cancel_button;
+		tx1Char(accept_button);
+	}
+	//printf("현재시간 : %u", millis());
+	tx1Char('f');
+}
+/*
+ISR(TIMER0_COMP_vect)
+{
+	tx1Char('W');
+}
+*/
 /** This does the scrolling and checks the state of the buttons. */
 //ISR(TIMER0_COMPA_vect)
 /*
@@ -360,7 +279,8 @@ ISR(TIMER0_COMP_vect)
 }
 */
 /** Clear LCD of all text. */
-static void clearLcd(void)
+//static void clearLcd(void)
+void clearLcd(void)
 {
 	current_column = 0;
 	max_line_size = 0;
@@ -369,62 +289,7 @@ static void clearLcd(void)
 	scroll_counter = SCROLL_SPEED;
 	//writeArduinoPin(RS_PIN, 0);
 	//write8(0x01); // clear display
-	// LCD clear
-//	tx1Char('$');
-//	tx1Char('$');
-//	tx1Char('C');
-//	tx1Char('S');
-//	tx1Char('\r');
 	_delay_ms(10);
-}
-
-/** See page 46 of the datasheet for the HD44780 initialisation sequence. All
-  * delays have a 2x safety factor. This also sets up timer 0 to fire an
-  * interrupt every 5 ms.
-  */
-void initLcdAndInput(void)
-{	
-	/*
-	cli();
-//	TCCR0A = _BV(WGM01); // CTC mode
-	TCCR1A = _BV(WGM01); // CTC mode
-//	TCCR0B = _BV(CS02) | _BV(CS00); // prescaler 1024
-	TCCR1B = _BV(CS02) | _BV(CS00); // prescaler 1024
-	TCNT0 = 0;
-//	OCR0A = 77; // frequency = (16000000 / 1024) / (77 + 1) = 200 Hz
-	OCR0 = 77; // frequency = (16000000 / 1024) / (77 + 1) = 200 Hz
-	//TIMSK0 = _BV(OCIE0A); // enable interrupt on compare match A
-	TIMSK = _BV(OCIE1A); // enable interrupt on compare match A 
-	//ETIMSK = _BV(OCIE0); // enable interrupt on compare match
-	scroll_counter = 1000; // make sure no attempt at scrolling is made yet
-	MCUCR = (uint8_t)(MCUCR & ~_BV(PUD)); //PUD Pull-up Disable
-	*/
-	//setArduinoPinInput(ACCEPT_PIN);
-	//setArduinoPinInput(CANCEL_PIN);
-	accept_button = false;
-	cancel_button = false;
-	accept_debounce = 0;
-	cancel_debounce = 0;
-	/*
-	sei();	
-	writeArduinoPin(E_PIN, 0);
-	writeArduinoPin(RS_PIN, 0);
-	_delay_ms(80);
-	write4(3);
-	_delay_ms(8.2);
-	write4(3);
-	_delay_ms(0.2);
-	write4(3);
-	write4(2);
-	// Now in 4 bit mode.
-	write8(0x28); // function set: 4 bit mode, 2 lines, 5x8 dots
-	write8(0x0c); // display on/off control: display on, no cursor
-	clearLcd();
-	write8(0x06); // entry mode set: increment, no display shift
-	list_index = 0;
-	*/
-	clearLcd();
-	list_index = 0;
 }
 
 /** Set LCD cursor position to the start of a line.
@@ -916,4 +781,151 @@ void streamError(void)
 	clearLcd();
 	gotoStartOfLine(0);
 	writeString(str_stream_error, true);
+}
+
+
+/** Set one of the digital output pins based on the Arduino pin mapping.
+  * \param pin The Arduino pin number (0 to 13 inclusive) to set.
+  * \param value Non-zero will set the pint high and zero will set the pin
+  *              low.
+  */
+static inline void writeArduinoPin(const uint8_t pin, const uint8_t value)
+{
+	uint8_t bit;
+
+	bit = 1;
+	if (pin < 8)
+	{
+		bit = (uint8_t)(bit << pin);
+		DDRD |= bit;
+		if (value)
+		{
+			PORTD |= bit;
+		}
+		else
+		{
+			PORTD = (uint8_t)(PORTD & ~bit);
+		}
+	}
+	else
+	{
+		bit = (uint8_t)(bit << (pin - 8));
+		DDRB |= bit;
+		if (value)
+		{
+			PORTB |= bit;
+		}
+		else
+		{
+			PORTB = (uint8_t)(PORTB & ~bit);
+		}
+	}
+}
+
+/** Write the least-significant 4 bits of value to the HD44780.
+  * See page 49 of the datasheet for EN timing. All delays have at least
+  * a 2x safety factor.
+  * \param value The 4 bit value to write.
+  */
+static void write4(uint8_t value)
+{
+	writeArduinoPin(D4_PIN, (uint8_t)(value & 0x01));
+	writeArduinoPin(D5_PIN, (uint8_t)(value & 0x02));
+	writeArduinoPin(D6_PIN, (uint8_t)(value & 0x04));
+	writeArduinoPin(D7_PIN, (uint8_t)(value & 0x08));
+	_delay_us(2);
+	writeArduinoPin(E_PIN, 0);
+	_delay_us(2);
+	writeArduinoPin(E_PIN, 1);
+	_delay_us(2);
+	writeArduinoPin(E_PIN, 0);
+	_delay_us(2);
+	// From page 24 of the datasheet, most commands require 37 us to complete.
+	_delay_us(74);
+}
+
+/** Write 8 bits to the HD44780 using write4() twice.
+  * \param value The 8 bit value to write.
+  * \warning Make sure register select (#RS_PIN) is set to an appropriate
+  *          value before calling this function.
+  */
+static void write8(uint8_t value)
+{
+	write4((uint8_t)(value >> 4));
+	write4(value);
+}
+
+/** Set one of the Arduino digital I/O pins to be an input pin with
+  * internal pull-up enabled.
+  * \param pin The Arduino pin number to set as an input pin.
+  */
+static inline void setArduinoPinInput(const uint8_t pin)
+{
+	uint8_t bit;
+
+	bit = 1;
+	if (pin < 8)
+	{
+		bit = (uint8_t)(bit << pin);
+		DDRD = (uint8_t)(DDRD & ~bit);	// 해당비트만 출력으로 설정.
+		PORTD |= bit;					// PORT PIN is driven high(one)
+	}
+	else
+	{
+		bit = (uint8_t)(bit << (pin - 8));
+		DDRB = (uint8_t)(DDRB & ~bit);
+		PORTB |= bit;
+	}
+}
+
+/** Read one of the Arduino digital I/O pins.
+  * \param pin The Arduino pin number to read.
+  * \return Non-zero if the pin is high, 0 if it is low.
+  */
+static inline uint8_t sampleArduinoPin(const uint8_t pin)
+{
+	uint8_t bit;
+
+	bit = 1;
+	if (pin < 8)
+	{		
+		bit = (uint8_t)(bit << pin);
+		return (uint8_t)(PIND & bit);
+	}
+	else
+	{
+		bit = (uint8_t)(bit << (pin - 8));
+		return (uint8_t)(PINB & bit);
+	}
+}
+
+volatile uint64_t millis_prv = 0;
+
+void millis_init()
+{
+	TCCR0 = 0;
+	// set timer0 with CLKio/8 prescaler
+	TCCR0 = _BV(CS01) | _BV(CS00);
+	// clear any TOV1 Flag set when the timer overflowed
+	TIFR &= ~TOV0;
+	// set timer0 counter initial value to 0
+	TCNT0 = 0x0;
+	// enable timer overflow interrupt for Timer0
+	TIMSK = _BV(TOIE0);
+	// clear the Power Reduction Timer/Counter0
+	//PRR &= ~PRTIM0;
+}
+
+// TIMER0 interrupt handler
+ISR(TIMER0_OVF_vect)
+{
+	// reset the counter (overflow is cleared automatically)
+	TCNT0 = (uint8_t)(0xFF - ((F_CPU/8)/1000)); // use CLKio/8 prescaler (set CS0n accordingly above)
+	millis_prv++;
+}
+
+// return elapsed time in milliseconds
+uint64_t millis()
+{
+	return millis_prv;
 }
