@@ -10,5 +10,6 @@
 
 extern void initLcdAndInput(void);
 extern void streamError(void);
+static void writeString(const char *str, bool is_progmem);
 
 #endif // #ifndef LCD_AND_INPUT_H_INCLUDED

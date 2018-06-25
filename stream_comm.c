@@ -1150,16 +1150,16 @@ void processPacket(void)
 		if (!receive_failure)
 		{
 			permission_denied = buttonInterjection(ASKUSER_FORMAT);
-			tx1Char("P");
-			tx1Char(">");
-			tx1Char(permission_denied);
+			//tx1Char("P");
+			//tx1Char(">");
+			//tx1Char(permission_denied);
 			if (!permission_denied)
 			{
-				//invalid_otp = otpInterjection(ASKUSER_FORMAT);
-				invalid_otp = false;
-				tx1Char("O");
-				tx1Char(">");
-				tx1Char(invalid_otp);	
+				invalid_otp = otpInterjection(ASKUSER_FORMAT);
+				//invalid_otp = false;
+				//tx1Char("O");
+				//tx1Char(">");
+				//tx1Char(invalid_otp);	
 				if (!invalid_otp)
 				{
 					if (initialiseEntropyPool(message_buffer.format_wallet_area.initial_entropy_pool.bytes))
@@ -2031,6 +2031,66 @@ uint16_t getStringLength(StringSet set, uint8_t spec)
 */
 
 
+
+/** Write a null-terminated string to the display.
+  * \param str The null-terminated string to write.
+  * \param is_progmem If this is true, then str is treated as a pointer
+  *                   to program memory (data with the #PROGMEM attribute),
+  *                   otherwise str is treated as a pointer to RAM.
+  * \warning Characters past column 40 are dropped (ignored).
+  */
+static void writeStringOtp(const char *str, bool is_progmem)
+{
+	char c;
+
+	//writeArduinoPin(RS_PIN, 1);
+	if (is_progmem)
+	{
+		c = (char)pgm_read_byte(str);
+	}
+	else
+	{
+		c = *str;
+	}
+	str++;
+	while ((c != 0))
+	{
+		//write8((uint8_t)c);
+		tx1Char(c);
+		if (is_progmem)
+		{
+			c = (char)pgm_read_byte(str);
+		}
+		else
+		{
+			c = *str;
+		}
+		str++;
+	}
+	
+}
+
+/** First line of #ASKUSER_NEW_WALLET prompt. */
+static const char str_create_wallet_otp[] PROGMEM = "Create new wallet?";
+/** Second line of #ASKUSER_NEW_ADDRESS prompt. */
+static const char str_create_address_otp[] PROGMEM = "Create new address?";
+/** First line of #ASKUSER_SIGN_TRANSACTION prompt. */
+static const char str_sign_transaction_otp[] PROGMEM = "Sign transaction?";
+/** Second line of #ASKUSER_FORMAT prompt. */
+static const char str_foramt_storage_otp[] PROGMEM = "Format storage area?";
+/** First line of #ASKUSER_CHANGE_NAME prompt. */
+static const char str_change_wallet_name_otp[] PROGMEM = "Change wallet name?";
+/** Second line of #ASKUSER_BACKUP_WALLET prompt. */
+static const char str_wallet_backup_otp[] PROGMEM = "Do a wallet backup?";
+/** First line of #ASKUSER_RESTORE_WALLET prompt. */
+static const char str_restore_wallet_otp[] PROGMEM = "Restore wallet from backup?";
+/** Second line of #ASKUSER_CHANGE_KEY prompt. */
+static const char str_change_wallet_key_otp[] PROGMEM = "Change wallet encryption key?";
+/** Second line of #ASKUSER_GET_MASTER_KEY prompt. */
+static const char str_reveal_master_key_otp[] PROGMEM = "Reveal master public key?";
+/** Second line of #ASKUSER_DELETE_WALLET prompt. */
+static const char str_delete_wallets_otp[] PROGMEM = "Delete existing wallet?";
+
 /** Display a short (maximum 8 characters) one-time password for the user to
   * see. This one-time password is used to reduce the chance of a user
   * accidentally doing something stupid.
@@ -2040,7 +2100,8 @@ uint16_t getStringLength(StringSet set, uint8_t spec)
 void displayOTP(AskUserCommand command, char *otp)
 {
 	printAction(command);
-	printf("OTP: %s\n", otp);
+	//printf("OTP: %s\n", otp);
+	writeStringOtp(otp,false);
 }
 
 
@@ -2050,7 +2111,49 @@ void displayOTP(AskUserCommand command, char *otp)
 void clearOTP(void)
 {
 }
-
+/** Display human-readable description of an action on stdout.
+  * \param command The action to display. See #AskUserCommandEnum.
+  */
+void printAction(AskUserCommand command)
+{
+	//printf("\n");
+	switch (command)
+	{
+	case ASKUSER_NEW_WALLET:
+		//printf("Create new wallet? ");
+		writeStringOtp(str_create_wallet_otp, true);
+		break;
+	case ASKUSER_NEW_ADDRESS:
+		writeStringOtp(str_create_address_otp, true);
+		break;
+	case ASKUSER_SIGN_TRANSACTION:
+		writeStringOtp(str_sign_transaction_otp, true);
+		break;
+	case ASKUSER_FORMAT:
+		writeStringOtp(str_foramt_storage_otp, true);
+		break;
+	case ASKUSER_CHANGE_NAME:
+		writeStringOtp(str_change_wallet_name_otp, true);
+		break;
+	case ASKUSER_BACKUP_WALLET:
+		writeStringOtp(str_wallet_backup_otp, true);
+		break;
+	case ASKUSER_RESTORE_WALLET:
+		writeStringOtp(str_restore_wallet_otp, true);
+		break;
+	case ASKUSER_CHANGE_KEY:
+		writeStringOtp(str_change_wallet_key_otp, true);
+		break;
+	case ASKUSER_GET_MASTER_KEY:
+		writeStringOtp(str_reveal_master_key_otp, true);
+		break;
+	case ASKUSER_DELETE_WALLET:
+		writeStringOtp(str_delete_wallets_otp, true);
+		break;
+	default:
+		fatalError();
+	}
+}
 
 /** Obtain one character from one of the device's strings.
   * \param set Specifies which set of strings to use; should be
@@ -2076,10 +2179,11 @@ char getString(StringSet set, uint8_t spec, uint16_t pos)
 /** Display human-readable description of an action on stdout.
   * \param command The action to display. See #AskUserCommandEnum.
   */
+/*
 //static void printAction(AskUserCommand command)
 void printAction(AskUserCommand command)
 {
-	printf("\n");
+	//printf("\n");
 	switch (command)
 	{
 	case ASKUSER_NEW_WALLET:
@@ -2116,3 +2220,4 @@ void printAction(AskUserCommand command)
 		fatalError();
 	}
 }
+*/

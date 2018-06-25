@@ -127,16 +127,7 @@ function callInputFilename(){
           displayPacket(data);
           console.log("Sending packet: ");
           // Send the packet.
-          sendByte(data);
-/*
-          let bufferAsk = Buffer.alloc(4);
-          rx_bytes_to_ack = 128;//메시지중 최대값//RX_ACKNOWLEDGE_INTERVAL;
-          serialport.write(Buffer.from('ff','hex'));
-
-          bufferAsk.writeUInt32LE(rx_bytes_to_ack);//offset + 4 bytes => make 1 bytes
-          console.log(" bufferAsk: ",bufferAsk);
-          serialport.write(bufferAsk);
-  */        
+          sendByte(data);        
         });
       
         fs.close(fd, (err) => {
@@ -242,17 +233,7 @@ async function sendByte(packet)
   if(serialport.write(packet,(error,bytesWritten) => {
     if (error) throw error;
     console.log(" written complete ",bytesWritten);
-    tx_bytes_to_ack -= packet.length;  
-    /*if (tx_bytes_to_ack  <= 0)	{ 
-      console.log("request tx_bytes11111 ###########################################")
-      let bufferAsk = Buffer.alloc(4);
-      tx_bytes_to_ack = 128;//메시지중 최대값//RX_ACKNOWLEDGE_INTERVAL;
-      serialport.write(Buffer.from('ff','hex'));
-
-      bufferAsk.writeUInt32LE(tx_bytes_to_ack);//offset + 4 bytes => make 1 bytes
-      console.log(" bufferAsk: ",bufferAsk);
-      serialport.write(bufferAsk);
-    }*/
+    tx_bytes_to_ack -= packet.length;
   }));
 }
 
@@ -284,7 +265,7 @@ function displayPacket(packet) //packet_data, buffer_length)
 			console.log("\n");
 		}
 		one_byte = packet[i + 8];
-		console.log(" 0x", one_byte.toString(16));
+		//console.log(" 0x", one_byte.toString(16));
 		if ((i + 8) >= packet.length) {
 			console.log(" ***unexpected end of packet***");
 			break;
@@ -293,12 +274,14 @@ function displayPacket(packet) //packet_data, buffer_length)
 	console.log("\n");
 	// display ASCII
 	for (i = 0; i < length; i++) {
-		if (i && !(i & 15))	{
+		if (i && !(i & 15))	{   // add a space every 16 line
 			console.log(" ");
 		}
-		one_byte = packet[i + 8];
+    one_byte = packet[i + 8];
+    console.log(one_byte,"  |  ");
 		if ((one_byte < 32) || (one_byte > 126)) {
-			console.log(".");
+      //console.log(". "); 
+      console.log( String.fromCharCode(packet[i + 8]));
 		}
 		else {
 			console.log( String.fromCharCode(packet[i + 8]));

@@ -191,99 +191,14 @@ ISR(INT0_vect)
 	//printf("현재시간 : %u", millis());
 	tx1Char('f');
 }
-/*
-ISR(TIMER0_COMP_vect)
-{
-	tx1Char('W');
-}
-*/
-/** This does the scrolling and checks the state of the buttons. */
-//ISR(TIMER0_COMPA_vect)
-/*
-ISR(TIMER0_COMP_vect)  
-{
-	bool temp;
 
-	scroll_counter--;
-	if (scroll_counter == 0)
-	{
-		if (max_line_size > NUM_COLUMNS)
-		{
-			if (scroll_to_left)
-			{
-				if (scroll_pos == 0)
-				{
-					scroll_to_left = false;
-				}
-				else
-				{
-					writeArduinoPin(RS_PIN, 0);
-					write8(0x1c);
-					scroll_pos--;
-				}
-			}
-			else
-			{
-				if (scroll_pos == (max_line_size - NUM_COLUMNS))
-				{
-					scroll_to_left = true;
-				}
-				else
-				{
-					writeArduinoPin(RS_PIN, 0);
-					write8(0x18);
-					scroll_pos++;
-				}
-			}
-		}
-		scroll_counter = SCROLL_SPEED;
-	}
-
-	if (sampleArduinoPin(ACCEPT_PIN) != 0)
-	{
-		temp = true;
-	}
-	else
-	{
-		temp = false;
-	}
-	if ((accept_button && temp) || (!accept_button && !temp))
-	{
-		// Mismatching state; accumulate debounce counter until threshold
-		// is reached, then make states consistent.
-		accept_debounce++;
-		if (accept_debounce == DEBOUNCE_COUNT)
-		{
-			accept_button = !accept_button;
-		}
-	}
-	else
-	{
-		accept_debounce = 0;
-	}
-	temp = sampleArduinoPin(CANCEL_PIN);
-	if ((cancel_button && temp) || (!cancel_button && !temp))
-	{
-		// Mismatching state; accumulate debounce counter until threshold
-		// is reached, then make states consistent.
-		cancel_debounce++;
-		if (cancel_debounce == DEBOUNCE_COUNT)
-		{
-			cancel_button = !cancel_button;
-		}
-	}
-	else
-	{
-		cancel_debounce = 0;
-	}
-}
-*/
 /** Clear LCD of all text. */
 //static void clearLcd(void)
 void clearLcd(void)
 {
 	current_column = 0;
-	max_line_size = 0;
+	//max_line_size = 0;
+	max_line_size = NUM_COLUMNS;
 	scroll_pos = 0;
 	scroll_to_left = false;
 	scroll_counter = SCROLL_SPEED;
@@ -302,9 +217,9 @@ static void gotoStartOfLine(uint8_t line)
 	//writeArduinoPin(RS_PIN, 0);
 	if (line == 0)
 	{
-		//write8(0x80);
+	/*	//write8(0x80);
 		// set Cursor position;  Row (1~4);  Colum (1~16)
-	/*	tx1Char('$');
+		tx1Char('$');
 		tx1Char('G');
 		tx1Char(',');
 		tx1Char('1');
@@ -323,7 +238,8 @@ static void gotoStartOfLine(uint8_t line)
 		tx1Char(',');
 		tx1Char('1');
 		tx1Char('\r');
-*/	}
+*/	
+	}
 	current_column = 0;
 }
 
@@ -472,10 +388,10 @@ static const char str_new_line0[] PROGMEM = "Create new";
 static const char str_new_line1[] PROGMEM = "address?";
 /** What will be prepended to output amounts for #ASKUSER_SIGN_TRANSACTION
   * prompt. */
-static char const str_sign_part0[] PROGMEM = "Sending ";
+static const char str_sign_part0[] PROGMEM = "Sending ";
 /** What will be appended to output amounts for #ASKUSER_SIGN_TRANSACTION
   * prompt. */
-static char const str_sign_part1[] PROGMEM = " BTC to";
+static const char str_sign_part1[] PROGMEM = " BTC to";
 /** What will be prepended to the transaction fee amount
   * for #ASKUSER_SIGN_TRANSACTION prompt. */
 static const char str_fee_part0[] PROGMEM = "Transaction fee:";
@@ -783,6 +699,58 @@ void streamError(void)
 	writeString(str_stream_error, true);
 }
 
+/** Read one of the Arduino digital I/O pins.
+  * \param pin The Arduino pin number to read.
+  * \return Non-zero if the pin is high, 0 if it is low.
+  */
+static inline uint8_t sampleArduinoPin(const uint8_t pin)
+{
+	uint8_t bit;
+
+	bit = 1;
+	if (pin < 8)
+	{		
+		bit = (uint8_t)(bit << pin);
+		return (uint8_t)(PIND & bit);
+	}
+	else
+	{
+		bit = (uint8_t)(bit << (pin - 8));
+		return (uint8_t)(PINB & bit);
+	}
+}
+
+volatile uint64_t millis_prv = 0;
+
+void millis_init()
+{
+	TCCR0 = 0;
+	// set timer0 with CLKio/8 prescaler
+	TCCR0 = _BV(CS01) | _BV(CS00);
+	// clear any TOV1 Flag set when the timer overflowed
+	TIFR &= ~TOV0;
+	// set timer0 counter initial value to 0
+	TCNT0 = 0x0;
+	// enable timer overflow interrupt for Timer0
+	TIMSK = _BV(TOIE0);
+	// clear the Power Reduction Timer/Counter0
+	//PRR &= ~PRTIM0;
+}
+
+// TIMER0 interrupt handler
+ISR(TIMER0_OVF_vect)
+{
+	// reset the counter (overflow is cleared automatically)
+	TCNT0 = (uint8_t)(0xFF - ((F_CPU/8)/1000)); // use CLKio/8 prescaler (set CS0n accordingly above)
+	millis_prv++;
+}
+
+// return elapsed time in milliseconds
+uint64_t millis()
+{
+	return millis_prv;
+}
+
 
 /** Set one of the digital output pins based on the Arduino pin mapping.
   * \param pin The Arduino pin number (0 to 13 inclusive) to set.
@@ -878,54 +846,90 @@ static inline void setArduinoPinInput(const uint8_t pin)
 	}
 }
 
-/** Read one of the Arduino digital I/O pins.
-  * \param pin The Arduino pin number to read.
-  * \return Non-zero if the pin is high, 0 if it is low.
-  */
-static inline uint8_t sampleArduinoPin(const uint8_t pin)
+/*
+ISR(TIMER0_COMP_vect)
 {
-	uint8_t bit;
+	tx1Char('W');
+}
+*/
+/** This does the scrolling and checks the state of the buttons. */
+//ISR(TIMER0_COMPA_vect)
+/*
+ISR(TIMER0_COMP_vect)  
+{
+	bool temp;
 
-	bit = 1;
-	if (pin < 8)
-	{		
-		bit = (uint8_t)(bit << pin);
-		return (uint8_t)(PIND & bit);
+	scroll_counter--;
+	if (scroll_counter == 0)
+	{
+		if (max_line_size > NUM_COLUMNS)
+		{
+			if (scroll_to_left)
+			{
+				if (scroll_pos == 0)
+				{
+					scroll_to_left = false;
+				}
+				else
+				{
+					writeArduinoPin(RS_PIN, 0);
+					write8(0x1c);
+					scroll_pos--;
+				}
+			}
+			else
+			{
+				if (scroll_pos == (max_line_size - NUM_COLUMNS))
+				{
+					scroll_to_left = true;
+				}
+				else
+				{
+					writeArduinoPin(RS_PIN, 0);
+					write8(0x18);
+					scroll_pos++;
+				}
+			}
+		}
+		scroll_counter = SCROLL_SPEED;
+	}
+
+	if (sampleArduinoPin(ACCEPT_PIN) != 0)
+	{
+		temp = true;
 	}
 	else
 	{
-		bit = (uint8_t)(bit << (pin - 8));
-		return (uint8_t)(PINB & bit);
+		temp = false;
+	}
+	if ((accept_button && temp) || (!accept_button && !temp))
+	{
+		// Mismatching state; accumulate debounce counter until threshold
+		// is reached, then make states consistent.
+		accept_debounce++;
+		if (accept_debounce == DEBOUNCE_COUNT)
+		{
+			accept_button = !accept_button;
+		}
+	}
+	else
+	{
+		accept_debounce = 0;
+	}
+	temp = sampleArduinoPin(CANCEL_PIN);
+	if ((cancel_button && temp) || (!cancel_button && !temp))
+	{
+		// Mismatching state; accumulate debounce counter until threshold
+		// is reached, then make states consistent.
+		cancel_debounce++;
+		if (cancel_debounce == DEBOUNCE_COUNT)
+		{
+			cancel_button = !cancel_button;
+		}
+	}
+	else
+	{
+		cancel_debounce = 0;
 	}
 }
-
-volatile uint64_t millis_prv = 0;
-
-void millis_init()
-{
-	TCCR0 = 0;
-	// set timer0 with CLKio/8 prescaler
-	TCCR0 = _BV(CS01) | _BV(CS00);
-	// clear any TOV1 Flag set when the timer overflowed
-	TIFR &= ~TOV0;
-	// set timer0 counter initial value to 0
-	TCNT0 = 0x0;
-	// enable timer overflow interrupt for Timer0
-	TIMSK = _BV(TOIE0);
-	// clear the Power Reduction Timer/Counter0
-	//PRR &= ~PRTIM0;
-}
-
-// TIMER0 interrupt handler
-ISR(TIMER0_OVF_vect)
-{
-	// reset the counter (overflow is cleared automatically)
-	TCNT0 = (uint8_t)(0xFF - ((F_CPU/8)/1000)); // use CLKio/8 prescaler (set CS0n accordingly above)
-	millis_prv++;
-}
-
-// return elapsed time in milliseconds
-uint64_t millis()
-{
-	return millis_prv;
-}
+*/
