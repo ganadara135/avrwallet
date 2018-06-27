@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
 serialDuplexTest.js
 Tests the functionality of the serial port library.
@@ -27,8 +25,8 @@ const fs = require('fs');
 //var readline = require('node-readline.js');
 var readline = require('readline');
 var async = require('async');
-
-
+const { StringDecoder } = require('string_decoder');
+const str_decoder = new StringDecoder('utf8');
 
 args
   .usage('-p <port>')
@@ -175,7 +173,7 @@ function onData(data) {
     tx_bytes_to_ack = tx_chk.readUInt32LE(1);//offset + 4 bytes => make 1 bytes
   }
   let firstOf0x23 = packet_buffer_received.indexOf(0x23);
-  let secondOf0x23Buffer = packet_buffer_received.slice(firstOf0x23,1);
+  //let secondOf0x23Buffer = packet_buffer_received.slice(firstOf0x23,1);
  // console.log("firstOf0x23", firstOf0x23)
 //  console.log("secondOf0x23Buffer : ", secondOf0x23Buffer)
   /*if(secondOf0x23Buffer.toString()  === '#' &&
@@ -202,10 +200,6 @@ function onData(data) {
     //rx_bytes_to_ack -= packet_buffer_received.length;
     callInputFilename();
   }
-  /*else if(packet_buffer_received.length > 8 && 
-    packet_buffer_received[firstOf0x23+3] === 0x50){
-    console.log(" Press Button on AVR bread board. ")
-  }*/
 }
 
 function onClose() {
@@ -227,8 +221,15 @@ serialport.on('error', onError);
 
 async function sendByte(packet)
 {
-  //let packet_bufferS  = Buffer.alloc(packet.length);
-  //packet.copy(packet_bufferS);
+  
+  /*let testCent = Buffer.from([0x108,0x111,0x208,0x304,0x72,0x101,0x69]);
+  console.log(str_decoder.write(testCent));
+
+  for(let i=0;i<packet.length;i++)
+  {
+    console.log('S => ', packet[i],'   ',str_decoder.write(packet[i]));
+  }
+ */
 
   if(serialport.write(packet,(error,bytesWritten) => {
     if (error) throw error;
@@ -249,7 +250,7 @@ function displayPacket(packet) //packet_data, buffer_length)
   // Read a 32-bit unsigned integer from the byte array specified by in.
   // The bytes will be read in a big-endian format.
   //length = packet_buffer_file.readUInt32LE(1);
-  length = packet.readUInt32BE(4); // aggregate 4 bytes into 1 bytes
+  length = packet.readUInt32BE(4); // aggregate 4 bytes into 1 word
   //length = packet_buffer_file[4];
   console.log("command : ", command.toString(16));
   console.log("length(hex) : ", length.toString(16));
@@ -278,13 +279,15 @@ function displayPacket(packet) //packet_data, buffer_length)
 			console.log(" ");
 		}
     one_byte = packet[i + 8];
-    console.log(one_byte,"  |  ");
+    //console.log(one_byte);//,"  |  ");
 		if ((one_byte < 32) || (one_byte > 126)) {
       //console.log(". "); 
-      console.log( String.fromCharCode(packet[i + 8]));
+      console.log( String.fromCharCode(packet[i + 8]),'   ',packet[i + 8],'    ',
+      str_decoder.write('0x'+ packet[i+8]));
 		}
 		else {
-			console.log( String.fromCharCode(packet[i + 8]));
+      console.log( String.fromCharCode(packet[i + 8]),'   ',packet[i + 8],'    ',
+      str_decoder.write('0x'+ packet[i+8]));
 		}
 		if ((i + 8) >= packet.length) {
 			break;
@@ -355,9 +358,10 @@ function packetCommandToText(command) {
     case 0x3a:
       return "Features";
     case 0x50:
-      console.log(" Press Button on AVR bread board. ")
+      console.log(" Ready to do Button press. ")
       return "ButtonRequest";
     case 0x51:
+      console.log("Press Button on bread board. ")
       return "ButtonAck";
     case 0x52:
       return "ButtonCancel";

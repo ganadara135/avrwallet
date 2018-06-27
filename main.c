@@ -182,24 +182,33 @@ uint32_t getPBKDF2Iterations(void)
 	return 128;
 }
 
-#define PUSH_BTN 0x01
+//#define PUSH_BTN 0x01
+#define _BV(bit)  (1 << (bit))
 
 int main(void){
 	
 	 init_devices();
 	 initUsart();
-	 initAdc();
+	 initAdc();  // need to check this operation working
 	 initLcdAndInput();
 	 
+	 cli(); //disable all interrupts
 	 //{ Interrupt Key setting Part
 	 // DDR 기본적으로 0 으로 세팅되어 있음
-	 DDRD |= 0<<PD0;  //PORTD0을 입력으로 설정,  BUTTON용
+	 DDRD |= 0<<PD0;  // 입력으로 설정,  BUTTON용
+	 DDRD |= 0<<PD2;  // 입력으로 설정,  BUTTON용(CANCEL)
  
 	 //falling edge에서 인터럽트 발생
-	 EICRA  &= ~(1<<ISC00);
-	 EICRA  |= 1<<ISC01;
-	 EIMSK  |= 1<<INT0;  //External Interrupt Request 0 Enable
+	 //EICRA  &= ~(1<<ISC00); 
+	 EICRA |= ~_BV(ISC00);
+	 EICRA |= _BV(ISC01);
+	 EIMSK |= _BV(INT0);// | _BV(INT1);
+	 EICRA |= ~_BV(ISC20);
+	 EICRA |= _BV(ISC21);
+	 EIMSK |= (1<<INT2);  //External Interrupt Request 0 Enable
 						//PD0에 스위치 연결, 풀업 저항을 추가한 회로여야 한다.
+	 
+	
 	 sei();      //Global Interrupt Enable
 	 //}
 

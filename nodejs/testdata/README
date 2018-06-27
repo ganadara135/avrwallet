@@ -3,6 +3,14 @@ test complete files
 ping.bin
 initialize.bin
 get_device_uuid.bin
+format_storage.bin
+sign_transaction.bin
+button_ack.bin
+otp_ack.bin
+pin_ack.bin
+backup_wallet.bin
+load_wallet.bin
+
 
 
 

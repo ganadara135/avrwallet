@@ -445,8 +445,8 @@ static bool buttonInterjection(AskUserCommand command)
 	memset(&button_request, 0, sizeof(button_request));
 	sendPacket(PACKET_TYPE_BUTTON_REQUEST, ButtonRequest_fields, &button_request);
 	message_id = receivePacketHeader();
-	tx1Char("M");
-	tx1Char(message_id);
+	//tx1Char("M");
+	//tx1Char(message_id);
 	if (message_id == PACKET_TYPE_BUTTON_ACK)
 	{
 		// Host will allow button press.
