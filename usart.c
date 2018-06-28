@@ -286,10 +286,10 @@ uint8_t streamGetOneByte(void)
 		uint8_t buffer[4];
 		uint8_t i;
 
-		rx_acknowledge = RX_BUFFER_SIZE;
+		rx_acknowledge = RX_BUFFER_SIZE; // HEX 80
 		writeU32LittleEndian(buffer, rx_acknowledge);
 		usartSend(0xff);
-		//usartSend(0x7f);  //127 DEL
+		//RX_BUFFER_SIZE  4 bytes Å©±â·Î
 		for (i = 0; i < 4; i++)
 		{
 			usartSend(buffer[i]);

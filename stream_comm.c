@@ -1030,6 +1030,8 @@ void processPacket(void)
 				if (!invalid_otp)
 				{
 					wallet_return = deleteWallet(message_buffer.delete_wallet.wallet_handle);
+					tx1Char('E');
+					tx1Char(wallet_return+32);
 					translateWalletError(wallet_return);
 				}
 			}
@@ -1064,6 +1066,8 @@ void processPacket(void)
 					message_buffer.new_wallet.is_hidden,
 					field_hash,
 					password_length);
+				tx1Char('E');
+				tx1Char(wallet_return+32);
 				translateWalletError(wallet_return);
 			}
 		}

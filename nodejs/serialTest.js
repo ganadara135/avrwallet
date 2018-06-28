@@ -160,16 +160,26 @@ function onData(data) {
   //tx_bytes_to_ack -= data.length;
   rx_bytes_to_ack -= data.length;
   console.log("rx_bytes_to_ack : ", rx_bytes_to_ack);
+  console.log("tx_bytes_to_ack : ", tx_bytes_to_ack);
  
   startOf0xff = packet_buffer_received.indexOf(0xff);
-  console.log("startOf0xff => ", startOf0xff)
-  if(startOf0xff != -1 && packet_buffer_received.length >= startOf0xff+5){  
+  /*console.log("startOf0xff => ", startOf0xff)
+  console.log("buf : ", packet_buffer_received[startOf0xff])
+  console.log("buf+1 : ", packet_buffer_received[startOf0xff+1])
+  if(packet_buffer_received[startOf0xff+1] === 0x80)
+    console.log("Gaollllll ~~~~!!!!! ")*/
+  
+  if(startOf0xff != -1 && packet_buffer_received.length >= startOf0xff+5 
+    && packet_buffer_received[startOf0xff+1] === 0x80){  
     console.log("request tx_bytes ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")      
     let tx_chk = packet_buffer_received.slice(startOf0xff,5);
     let temp = packet_buffer_received.slice(startOf0xff+5);    
     packet_buffer_received = Buffer.alloc(temp.length,temp);
+
+    console.log("tx_chk : ", tx_chk);
     
     // 상대에서 받을 수 있는 바이트량 받아오기
+    // 첫 바이트 이후에 4 바이트를 32 word 로 만듦
     tx_bytes_to_ack = tx_chk.readUInt32LE(1);//offset + 4 bytes => make 1 bytes
   }
   let firstOf0x23 = packet_buffer_received.indexOf(0x23);

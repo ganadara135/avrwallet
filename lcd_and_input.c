@@ -406,9 +406,9 @@ static bool waitForButtonPress(void)
  *
  * @{
  */
-/** First line of #ASKUSER_NUKE_WALLET prompt. */
+/** First line of #ASKUSER_NEW_WALLET prompt. */ //delete and new wallet together
 static const char str_delete_line0[] PROGMEM = "Delete existing wallet";
-/** Second line of #ASKUSER_NUKE_WALLET prompt. */
+/** Second line of #ASKUSER_NEW_WALLET prompt. */
 static const char str_delete_line1[] PROGMEM = "and start a new one?";
 /** First line of #ASKUSER_NEW_ADDRESS prompt. */
 static const char str_new_line0[] PROGMEM = "Create new";
@@ -470,8 +470,7 @@ bool userDenied(AskUserCommand command)
 	clearLcd();
 
 	r = true;
-	//if (command == ASKUSER_NUKE_WALLET)
-	if (command == ASKUSER_NEW_WALLET)
+	if (command == ASKUSER_NEW_WALLET || command == ASKUSER_DELETE_WALLET)
 	{
 		waitForNoButtonPress();
 		gotoStartOfLine(0);

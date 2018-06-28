@@ -433,7 +433,7 @@ static WalletErrors sanitiseNonVolatileStorage(NVPartitions partition, uint32_t 
 		last_error = WALLET_BAD_ADDRESS;
 		return last_error;
 	}
-
+	tx1Char('V');
 	// 4 pass format: all 0s, all 1s, random, random. This ensures that
 	// every bit is cleared at least once, set at least once and ends up
 	// in an unpredictable state.

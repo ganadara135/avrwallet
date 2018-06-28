@@ -34,6 +34,7 @@ void initAdc(void)
 {
 	ADMUX = _BV(REFS0);
 	ADCSRA = _BV(ADEN) |  _BV(ADPS2) |  _BV(ADPS1) |  _BV(ADPS0);
+		/*
 	//ADCSRB = 0;
 	//PRR = (uint8_t)(PRR & ~_BV(PRADC));
 	DDRB |= 3; // set PB0 and PB1 to output
@@ -42,20 +43,24 @@ void initAdc(void)
 	// Set timer 2 to interrupt periodically so that the square waves for the
 	// charge pump can be cycled. It's possible to do this without interrupts
 	// (using PWM), but then two timers will be occupied instead of just one.
+
 	cli();
 	//TCCR2A = _BV(WGM21); // CTC mode
 	//TCCR2B = _BV(CS21) | _BV(CS20); // prescaler 32
 	TCCR1A = _BV(WGM21); // CTC mode
 	TCCR1B = _BV(CS21) | _BV(CS20); // prescaler 32
 	TCNT2 = 0;
+	//TCNT1 = 0;???
 	//OCR2A = 9; // frequency = (16000000 / 32) / (9 + 1) = 50 kHz
 	//TIMSK2A = _BV(OCIE2A); // enable interrupt on compare match A
 	OCR1A = 9; // frequency = (16000000 / 32) / (9 + 1) = 50 kHz
 	ETIMSK = _BV(OCIE3A); // enable interrupt on compare match A
 	sei();
+	*/
 }
 
 /** Toggle output pins which connect to charge pump. */
+/*
 ISR(TIMER1_COMPA_vect)
 {
 	uint8_t state;
@@ -63,7 +68,7 @@ ISR(TIMER1_COMPA_vect)
 	PORTB = (uint8_t)(PORTB & ~(_BV(PB0) | _BV(PB1))); // break before make
 	PORTB = (uint8_t)(state ^ (_BV(PB0) | _BV(PB1)));
 }
-
+*/
 /** Get one 10 bit sample from the ADC. */
 static uint16_t adcSample(void)
 {
@@ -74,6 +79,9 @@ static uint16_t adcSample(void)
 	while (ADCSRA & _BV(ADSC))
 	{
 		// do nothing
+		/*tx1Char('A');
+		tx1Char('D');
+		tx1Char('C');*/
 	}
 	sample_lo = ADCL;
 	sample_hi = ADCH;
@@ -100,6 +108,9 @@ int hardwareRandom32Bytes(uint8_t *buffer)
 	for (i = 0; i < 32; i++)
 	{
 		sample = adcSample();
+		//tx1Char('R');
+		tx1Char(sample);
+		
 		// Each sample is 10 bits. XOR the most-significant (MS) 2 bits into
 		// the least-significant (LS) 2 bits. As long as they are not
 		// significantly correlated, this shouldn't result in a decrease in
