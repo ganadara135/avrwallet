@@ -165,6 +165,10 @@ void initLcdAndInput(void)
 	millis_init();
 }
 
+bool getAcceptButton(){
+	return accept_button;
+}
+
 const int duration = 1000;
 unsigned long pre_time = 0;
 unsigned long cur_time = 0;
@@ -182,6 +186,7 @@ ISR(INT0_vect)
 		
 		pre_time = cur_time;		
 		accept_button = !accept_button;
+		
 		tx1Char('B');
 		if(accept_button){
 			tx1Char('Y');
@@ -646,7 +651,7 @@ bool writeBackupSeed(uint8_t *seed, bool is_encrypted, uint32_t destination_devi
 
 	// Tell user whether seed is encrypted or not.
 	clearLcd();
-	tx1Char('1');
+	//tx1Char('1');
 	waitForNoButtonPress();
 	gotoStartOfLine(0);
 	writeString(str_seed_encrypted_or_not_line0, true);
@@ -659,13 +664,13 @@ bool writeBackupSeed(uint8_t *seed, bool is_encrypted, uint32_t destination_devi
 	{
 		writeString(str_seed_not_encrypted_line1, true);
 	}
-	tx1Char('2');
+	//tx1Char('2');
 	if (waitForButtonPress())
 	{
 		clearLcd();
 		return true;
 	}
-	tx1Char('3');
+	//tx1Char('3');
 	waitForNoButtonPress();
 
 	// Output seed to LCD.
@@ -680,9 +685,9 @@ bool writeBackupSeed(uint8_t *seed, bool is_encrypted, uint32_t destination_devi
 		str[2] = nibbleToHex(one_byte);
 		if (byte_counter == 12)
 		{
-			tx1Char(4);
+			//tx1Char(4);
 			waitForNoButtonPress();
-			tx1Char(5);
+			//tx1Char(5);
 			if (waitForButtonPress())
 			{
 				clearLcd();
@@ -713,9 +718,9 @@ bool writeBackupSeed(uint8_t *seed, bool is_encrypted, uint32_t destination_devi
 		}
 		byte_counter++;
 	}
-	tx1Char('6');
+	//tx1Char('6');
 	waitForNoButtonPress();
-	tx1Char('7');
+	//tx1Char('7');
 	if (waitForButtonPress())
 	{
 		clearLcd();

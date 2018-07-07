@@ -251,7 +251,8 @@ static void readAndIgnoreInput(void)
 static bool receiveMessage(const pb_field_t fields[], void *dest_struct)
 {
 	bool r;
-
+	
+	//tx1Char('8');
 	r = pb_decode(&main_input_stream, fields, dest_struct);
 	// In order for the message to be considered valid, it must also occupy
 	// the entire payload of the packet.
@@ -1030,8 +1031,8 @@ void processPacket(void)
 				if (!invalid_otp)
 				{
 					wallet_return = deleteWallet(message_buffer.delete_wallet.wallet_handle);
-					tx1Char('E');
-					tx1Char(wallet_return+32);
+					//tx1Char('E');
+					//tx1Char(wallet_return+32);
 					translateWalletError(wallet_return);
 				}
 			}
@@ -1066,8 +1067,8 @@ void processPacket(void)
 					message_buffer.new_wallet.is_hidden,
 					field_hash,
 					password_length);
-				tx1Char('E');
-				tx1Char(wallet_return+32);
+				//tx1Char('E');
+				//tx1Char(wallet_return+32);
 				translateWalletError(wallet_return);
 			}
 		}
@@ -1114,10 +1115,16 @@ void processPacket(void)
 		break;
 
 	case PACKET_TYPE_SIGN_TRANSACTION:
+		//delay_ms(9000);
+		//tx1Char('9');
+		//delay_ms(9000);
 		// Sign a transaction.
 		sign_transaction.transaction_data.funcs.decode = &signTransactionCallback;
+		//tx1Char('7');
+		//delay_ms(9000);
 		// Everything else is handled in signTransactionCallback().
 		receiveMessage(SignTransaction_fields, &sign_transaction);
+		//tx1Char('5');
 		break;
 
 	case PACKET_TYPE_LOAD_WALLET:

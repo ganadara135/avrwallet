@@ -174,18 +174,18 @@ bool getEntropyPool(uint8_t *out_pool_state)
 
 	if (nonVolatileRead(out_pool_state, PARTITION_GLOBAL, ADDRESS_ENTROPY_POOL, ENTROPY_POOL_LENGTH) != NV_NO_ERROR)
 	{
-		tx1Char('Z');
+		//tx1Char('Z');
 		return true; // non-volatile read error
 	}
 	calculateEntropyPoolChecksum(checksum_calculated, out_pool_state);
 	if (nonVolatileRead(checksum_read, PARTITION_GLOBAL, ADDRESS_POOL_CHECKSUM, POOL_CHECKSUM_LENGTH) != NV_NO_ERROR)
 	{
-		tx1Char('X');
+		//tx1Char('X');
 		return true; // non-volatile read error
 	}
 	if (memcmp(checksum_read, checksum_calculated, POOL_CHECKSUM_LENGTH))
 	{
-		tx1Char('C');
+		//tx1Char('C');
 		return true; // checksum doesn't match
 	}
 	return false; // success

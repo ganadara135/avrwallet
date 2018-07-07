@@ -39,6 +39,9 @@
 #include "hwinterface.h"
 #include "transaction.h"
 
+#include "lcd_and_input.h"
+#include <stdio.h>
+
 /** The maximum size of a transaction (in bytes) which parseTransaction()
   * is prepared to handle. */
 #define MAX_TRANSACTION_SIZE	2000000
@@ -131,6 +134,11 @@ static bool getTransactionBytes(uint8_t *buffer, uint8_t length)
 		for (i = 0; i < length; i++)
 		{
 			one_byte = streamGetOneByte();
+			
+			//tx1Char(one_byte+32);
+			//printf("one_byte : %o",one_byte);
+			//printf("T: %x", one_byte);
+			
 			buffer[i] = one_byte;
 			if (hs_ptr_valid)
 			{
@@ -175,16 +183,16 @@ static bool isEndOfTransactionData(void)
 static bool getVarInt(uint32_t *out)
 {
 	uint8_t temp[4];
-
+	
 	if (getTransactionBytes(temp, 1))
 	{
 		return true; // unexpected end of transaction data
 	}
-	if (temp[0] < 0xfd)
+	if (temp[0] < 0xfd)				// uint8_t
 	{
 		*out = temp[0];
 	}
-	else if (temp[0] == 0xfd)
+	else if (temp[0] == 0xfd)		// uint16_t
 	{
 		if (getTransactionBytes(temp, 2))
 		{
@@ -192,7 +200,7 @@ static bool getVarInt(uint32_t *out)
 		}
 		*out = (uint32_t)(temp[0]) | ((uint32_t)(temp[1]) << 8);
 	}
-	else if (temp[0] == 0xfe)
+	else if (temp[0] == 0xfe)		//uint32_t
 	{
 		if (getTransactionBytes(temp, 4))
 		{
@@ -205,6 +213,19 @@ static bool getVarInt(uint32_t *out)
 		return true; // varint is too large
 	}
 	return false; // success
+}
+
+/** Wait until accept or cancel button is pressed.
+  * \return false if the accept button was pressed, true if the cancel
+  *         button was pressed.
+  */
+bool waitForButtonPressTest(void)
+{
+	bool current_accept_button = getAcceptButton();
+	do
+	{	
+		//tx1Char('9');
+	} while (current_accept_button == getAcceptButton());
 }
 
 /** See comments for parseTransaction() for description of what this does
@@ -250,9 +271,12 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 	// output number (which are not part of the transaction data) will
 	// be included in the signature/transaction hash.
 	hs_ptr_valid = false;
-
+	
 	if (getTransactionBytes(temp, 1))
 	{
+		tx1Char('9');
+//		printf("T%02x",temp[0]);
+
 		return TRANSACTION_INVALID_FORMAT; // transaction truncated
 	}
 	if (temp[0] != 0)
@@ -264,6 +288,9 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 		is_ref = false;
 	}
 	*is_ref_out = is_ref;
+	
+	//tx1Char(is_ref);
+//	printf("T%02x",temp[0]);
 
 	output_num_select = 0;
 	if (is_ref)
@@ -271,6 +298,7 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 		// Get output number to add to total amount.
 		if (getTransactionBytes(temp, 4))
 		{
+			tx1Char('8');
 			return TRANSACTION_INVALID_FORMAT; // transaction truncated
 		}
 		for (j = 0; j < 4; j++)
@@ -295,24 +323,30 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 	// Check version.
 	if (getTransactionBytes(temp, 4))
 	{
+		tx1Char('7');
 		return TRANSACTION_INVALID_FORMAT; // transaction truncated
 	}
+//	printf("T%02x%02x%02x%02x", temp[0],temp[1],temp[2],temp[3]);
 	if (readU32LittleEndian(temp) != 0x00000001)
 	{
+		tx1Char('6');
 		return TRANSACTION_NON_STANDARD; // unsupported transaction version
 	}
 
 	// Get number of inputs.
 	if (getVarInt(&num_inputs))
 	{
+		tx1Char('5');
 		return TRANSACTION_INVALID_FORMAT; // transaction truncated or varint too big
 	}
 	if (num_inputs == 0)
 	{
+		tx1Char('4');
 		return TRANSACTION_INVALID_FORMAT; // invalid transaction
 	}
 	if (num_inputs > MAX_INPUTS)
 	{
+		tx1Char('3');
 		return TRANSACTION_TOO_MANY_INPUTS; // too many inputs
 	}
 
@@ -322,11 +356,13 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 		// Get input transaction reference hash.
 		if (getTransactionBytes(temp, 32))
 		{
+			tx1Char('2');
 			return TRANSACTION_INVALID_FORMAT; // transaction truncated
 		}
 		// Get input transaction reference number.
 		if (getTransactionBytes(input_reference_num_buffer, 4))
 		{
+			tx1Char('1');
 			return TRANSACTION_INVALID_FORMAT; // transaction truncated
 		}
 		if (!is_ref)
@@ -334,7 +370,7 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 			for (j = 0; j < 4; j++)
 			{
 				sha256WriteByte(ref_compare_hs, input_reference_num_buffer[j]);
-			}
+			}  //by kcod
 			for (j = 0; j < 32; j++)
 			{
 				sha256WriteByte(ref_compare_hs, temp[j]);
@@ -351,6 +387,7 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 		// Get input script length.
 		if (getVarInt(&script_length))
 		{
+			tx1Char('A');
 			return TRANSACTION_INVALID_FORMAT; // transaction truncated or varint too big
 		}
 		// Skip the script because it's useless here.
@@ -358,6 +395,7 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 		{
 			if (getTransactionBytes(temp, 1))
 			{
+				tx1Char('B');
 				return TRANSACTION_INVALID_FORMAT; // transaction truncated
 			}
 		}
@@ -366,14 +404,17 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 		// is probably superfluous. But it's better to be safe than sorry.
 		if (getTransactionBytes(temp, 4))
 		{
+			tx1Char('C');
 			return TRANSACTION_INVALID_FORMAT; // transaction truncated
 		}
 		if (readU32LittleEndian(temp) != 0xFFFFFFFF)
 		{
+			tx1Char('D');
 			return TRANSACTION_NON_STANDARD; // replacement not supported
 		}
 	} // end for (i = 0; i < num_inputs; i++)
 
+/*
 	if (!is_ref)
 	{
 		// Compare input references with input transactions.
@@ -381,27 +422,33 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 		writeHashToByteArray(temp, ref_compare_hs, false);
 		if (memcmp(temp, ref_compare_hash, 32))
 		{
+			tx1Char('E');
 			return TRANSACTION_INVALID_REFERENCE; // references don't match input transactions
 		}
 	}
-
+*/
 	// Get number of outputs.
 	if (getVarInt(&num_outputs))
 	{
+		tx1Char('F');
 		return TRANSACTION_INVALID_FORMAT; // transaction truncated or varint too big
 	}
 	if (num_outputs == 0)
 	{
+		tx1Char('G');
 		return TRANSACTION_INVALID_FORMAT; // invalid transaction
 	}
 	if (num_outputs > MAX_OUTPUTS)
 	{
+		tx1Char('H');
 		return TRANSACTION_TOO_MANY_OUTPUTS; // too many outputs
 	}
 	if (is_ref)
 	{
-		if (output_num_select >= num_outputs)
+		// if (output_num_select >= num_outputs)
+		if (output_num_select > num_outputs)  // kcod
 		{
+			tx1Char('I');
 			return TRANSACTION_INVALID_REFERENCE; // bad reference number
 		}
 	}
@@ -412,10 +459,12 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 		// Get output amount.
 		if (getTransactionBytes(temp, 8))
 		{
+			tx1Char('J');
 			return TRANSACTION_INVALID_FORMAT; // transaction truncated
 		}
 		if (bigCompareVariableSize(temp, (uint8_t *)max_money, 8) == BIGCMP_GREATER)
 		{
+			tx1Char('K');
 			return TRANSACTION_INVALID_AMOUNT; // amount too high
 		}
 		if (is_ref)
@@ -424,21 +473,26 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 			{
 				if (bigAddVariableSizeNoModulo(transaction_fee_amount, transaction_fee_amount, temp, 8))
 				{
+					tx1Char('L');
 					return TRANSACTION_INVALID_AMOUNT; // overflow occurred (carry occurred)
 				}
 			}
 		}
 		else
 		{
+			/*
 			if (bigSubtractVariableSizeNoModulo(transaction_fee_amount, transaction_fee_amount, temp, 8))
 			{
+				tx1Char('M');
 				return TRANSACTION_INVALID_AMOUNT; // overflow occurred (borrow occurred)
 			}
+			*/
 			amountToText(text_amount, temp);
 		}
 		// Get output script length.
 		if (getVarInt(&script_length))
 		{
+			tx1Char('N');
 			return TRANSACTION_INVALID_FORMAT; // transaction truncated or varint too big
 		}
 		if (is_ref)
@@ -449,6 +503,7 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 			{
 				if (getTransactionBytes(temp, 1))
 				{
+					tx1Char('O');
 					return TRANSACTION_INVALID_FORMAT; // transaction truncated
 				}
 			}
@@ -463,24 +518,29 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 				// Look for: OP_DUP, OP_HASH160, (20 bytes of data).
 				if (getTransactionBytes(temp, 3))
 				{
+					tx1Char('P');
 					return TRANSACTION_INVALID_FORMAT; // transaction truncated
 				}
 				if ((temp[0] != 0x76) || (temp[1] != 0xa9) || (temp[2] != 0x14))
 				{
+					tx1Char('Q');
 					return TRANSACTION_NON_STANDARD; // nonstandard transaction
 				}
 				if (getTransactionBytes(temp, 20))
 				{
+					tx1Char('R');
 					return TRANSACTION_INVALID_FORMAT; // transaction truncated
 				}
 				hashToAddr(text_address, temp, ADDRESS_VERSION_PUBKEY);
 				// Look for: OP_EQUALVERIFY OP_CHECKSIG.
 				if (getTransactionBytes(temp, 2))
 				{
+					tx1Char('S');
 					return TRANSACTION_INVALID_FORMAT; // transaction truncated
 				}
 				if ((temp[0] != 0x88) || (temp[1] != 0xac))
 				{
+					tx1Char('T');
 					return TRANSACTION_NON_STANDARD; // nonstandard transaction
 				}
 			} // end if (script_length == 0x19)
@@ -513,10 +573,12 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 			} // end if (script_length == 0x17)
 			else
 			{
+				tx1Char('U');
 				return TRANSACTION_NON_STANDARD; // nonstandard transaction
 			}
 			if (newOutputSeen(text_amount, text_address))
 			{
+				tx1Char('V');
 				return TRANSACTION_TOO_MANY_OUTPUTS; // too many outputs
 			}
 		} // end if (is_ref)
@@ -525,25 +587,29 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
 	// Check locktime.
 	if (getTransactionBytes(temp, 4))
 	{
+		tx1Char('W');
 		return TRANSACTION_INVALID_FORMAT; // transaction truncated
 	}
-	if (readU32LittleEndian(temp) != 0x00000000)
-	{
+	if (readU32LittleEndian(temp) != 0x00000000) 
+	//if (readU32LittleEndian(temp) != 0xffffffff) //kcod
+	{	tx1Char('X');
 		return TRANSACTION_NON_STANDARD; // replacement not supported
 	}
 
 	if (!is_ref)
 	{
-		// Check hashtype.
+/*		// Check hashtype.						// kcod
 		if (getTransactionBytes(temp, 4))
 		{
+			tx1Char('Y');
 			return TRANSACTION_INVALID_FORMAT; // transaction truncated
 		}
 		if (readU32LittleEndian(temp) != 0x00000001)
 		{
+			tx1Char('Z');
 			return TRANSACTION_NON_STANDARD; // nonstandard transaction
 		}
-
+*/
 		// Is there junk at the end of the transaction data?
 		if (!isEndOfTransactionData())
 		{
@@ -617,6 +683,8 @@ static TransactionErrors parseTransactionInternal(BigNum256 sig_hash, BigNum256 
   */
 TransactionErrors parseTransaction(BigNum256 sig_hash, BigNum256 transaction_hash, uint32_t length)
 {
+	//tx1Char('8');
+	
 	TransactionErrors r;
 	uint8_t junk;
 	bool is_ref;

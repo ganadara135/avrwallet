@@ -124,7 +124,7 @@ ISR(USART0_RX_vect)
 {
 	uint8_t data = UDR0;	
 	//UDR1 = data;
-	tx1Char(data);
+	//tx1Char(data);
 	
 	if (rx_buffer_full)
 	{
@@ -289,7 +289,7 @@ uint8_t streamGetOneByte(void)
 		rx_acknowledge = RX_BUFFER_SIZE; // HEX 80
 		writeU32LittleEndian(buffer, rx_acknowledge);
 		usartSend(0xff);
-		//RX_BUFFER_SIZE  4 bytes 크기로
+		//RX_BUFFER_SIZE  4 bytes 크기로 전달
 		for (i = 0; i < 4; i++)
 		{
 			usartSend(buffer[i]);
@@ -364,12 +364,11 @@ static NOINLINE void sanitiseRamInternal(void)
 	//printf(" &__bss_start => %p  ",&__bss_start);
 //	printf(" &__data_end => %p  ",&__data_end);
 	cli();
-
 	for (i = (uint16_t)&__bss_start; i < (uint16_t)&i; i++)
 	//for (i = (uint16_t)&__bss_start; i < (uint16_t)&__data_end; i++)
 	{		
-		//*((uint8_t *)i) = 0xff; // just to be sure
-		*((uint8_t *)i) = 0;
+		*((uint8_t *)i) = 0xff; // just to be sure
+		//*((uint8_t *)i) = 0;
 		*((uint8_t *)i) = 0;
 		//*((uint16_t *)i) = 0;
 	}

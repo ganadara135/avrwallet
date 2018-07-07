@@ -29,6 +29,8 @@
 i >> x  : i의 비트열을 오른쪽으로 x만큼 이동
 i << x  : i의 비트열을 왼쪽으로 x만큼 이동
 */
+//static bool accept_button_test;
+
 void tx0Char(char message);
 void tx1Char(char message);
 
@@ -185,7 +187,11 @@ uint32_t getPBKDF2Iterations(void)
 //#define PUSH_BTN 0x01
 #define _BV(bit)  (1 << (bit))
 
+
+
 int main(void){
+	
+	 //accept_button_test = false;
 	
 	 init_devices();
 	 initUsart();
