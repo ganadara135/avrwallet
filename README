@@ -8,7 +8,7 @@ test_vectors 에 있는 파일로 테스트 완료
 2. transaction 데이터는 https://bitcoin.org/en/developer-examples#complex-raw-transaction
    제공하는 hex 파일사용
 3. parsTransaction() 부분에서 2. 에서 제공하는 transaction 데이터에 맞게 수정함
-
+4. Protocol Buffer encoding 분석이 돼야 주고 받는 시리얼데이터를 제대로 이해가능
 
 
 The host and device communicate over a pipeline-like interface which has the following characteristics:
