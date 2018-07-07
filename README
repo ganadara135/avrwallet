@@ -1,0 +1,53 @@
+avrwallet
+Makefile 만들어서 Gcc 와 연동하는 테스트 완료,
+모든 파일이 PC 에서 테스트 완료
+test_vectors 에 있는 파일로 테스트 완료
+결론, PC 에서는 테스트 완료, 암호 기능은 문제 없음.
+
+
+The host and device communicate over a pipeline-like interface which has the following characteristics:
+
+It is byte-oriented; packets are a multiple of 8 bits in size.
+Transmission is reliable; there are no bit errors.
+Transmission is sequential; bytes arrive in the order they were sent.
+Flow control is handled by an underlying layer.
+One obvious candidate for an implementation of such an interface is a USB serial port.
+
+The host and device communicate in pseudo-half-duplex by sending packets to each other in an alternating fashion. Initially, the host sends a packet. When the device has received the entire packet, it eventually responds by sending a packet back to the host. When the device is sending a packet, the host is not allowed to send another packet until it has completely received the device's packet. The host and device continue taking turns to send complete packets, never interrupting each other mid-packet.
+
+The format of each packet is: | | | | | 2 bytes | 2 bytes | 4 bytes | n bytes
+
+is 0x2323, or "##". is the big-endian command type, i.e. message ID. is the big-endian length (in bytes) of . is the "payload" for a packet; a serialised protocol buffer message.
+
+As an example, the packet "23 23 00 09 00 00 00 03 08 96 01" has: = 0x2323, which is correct. = 0x0009, which corresponds to "get address and public key". = 0x00000003, indicating that has a length of 3 bytes. = {0x08, 0x96, 0x01}, a GetAddressAndPublicKey message with the address_handle field set to 150.
+
+Therefore, this packet instructs the device to obtain the address and public key of address handle 150 in the current wallet.
+
+For a list of command types/message IDs, see stream_comm.h. For a definition of the protocol buffer messages, see messages.proto.
+
+
+Hardware Bitcoin Wallet
+by someone42, unless stated otherwise
+
+A minimal Bitcoin (see http://bitcoin.org/ ) wallet for embedded devices. The
+wallet is responsible for parsing transactions, prompting the user and signing
+transactions. In order to do this, the wallet also stores and manages private
+keys, but it does not store anything else. The wallet is not aware of the
+blockchain and communicates with a BitCoin client ("the host" from the point
+of view of the code here) via. a point-to-point stream-based link.
+
+Everything in the top-level source directory is self-contained and should be
+platform-independent. The only platform-dependent file there is common.h,
+which should be modified if porting to other platforms. hwinterface.h
+describes what platform-dependent functions need to be implemented. The
+Makefile in the top-level source directory will build platform-independent
+unit tests. Those unit tests can make use of the test vectors in the
+test_vectors/ subdirectory.
+
+Everything in the avr/ subdirectory is specific to the 8 bit AVR platform. The
+Makefile in avr/ will produce a (non-testing) binary suitable for programming
+an 8 bit AVR device with.
+
+Everything in the lpc11uxx/ subdirectory is specific to the LPC11Uxx series of
+microcontrollers. The lpc11uxx/ subdirectory also contains a Makefile which
+will produce a non-testing binary.

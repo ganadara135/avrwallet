@@ -1,0 +1,1588 @@
+080112fa0201010000000100000001ed848ff9970c7deb7787269681d775fbabc03813fea6a04c98169676de51c7ae010000008b483045022100d1903504ee19623eb33a0aa3eed55571412dc0bf6dff3024bd4dd58f273cafd102207b2ca70394086a19ce3ea837e680460673973db5c304b396caf52c7eb36ad73d01410487039fe615af8212e8a754036bbd5ab791357a2d1b6814cf6788a3c9aea0d8ae3b6b127b6d409ea4ee4742371d6efea1b5778a2d796e01a2f2fe072e2b0d01e3ffffffff021633010f000000001976a914460f5ba7a6f17ba09581ef483c19d6585202b66b88acea6fe002000000001976a9147833870820ea7ae897185208765e7eaa7ef9f2ab88ac00000000000100000001751e87a655b3ba8f7028459b4b944edcb54c13889f5e5a438bfae87a5f50270b010000001976a9147833870820ea7ae897185208765e7eaa7ef9f2ab88acffffffff01833ad502000000001976a914641ad5051edd97029a003fe9efb29359fcee409d88ac0000000001000000
+
+
+////////////////////////////////
+
+0x08
+0x01
+0x12
+0xfa
+0x02
+0x01
+0x01
+0x00
+0x00
+0x00
+0x01
+0x00
+0x00
+0x00
+0x01
+0xed
+
+0x84
+0x8f
+0xf9
+0x97
+0x0c
+0x7d
+0xeb
+0x77
+0x87
+0x26
+0x96
+0x81
+0xd7
+0x75
+0xfb
+0xab
+
+0xc0
+0x38
+0x13
+0xfe
+0xa6
+0xa0
+0x4c
+0x98
+0x16
+0x96
+0x76
+0xde
+0x51
+0xc7
+0xae
+0x01
+
+0x00
+0x00
+0x00
+0x8b
+0x48
+0x30
+0x45
+0x02
+0x21
+0x00
+0xd1
+0x90
+0x35
+0x04
+0xee
+0x19
+
+0x62
+0x3e
+0xb3
+0x3a
+0x0a
+0xa3
+0xee
+0xd5
+0x55
+0x71
+0x41
+0x2d
+0xc0
+0xbf
+0x6d
+0xff
+
+0x30
+0x24
+0xbd
+0x4d
+0xd5
+0x8f
+0x27
+0x3c
+0xaf
+0xd1
+0x02
+0x20
+0x7b
+0x2c
+0xa7
+0x03
+
+0x94
+0x08
+0x6a
+0x19
+0xce
+0x3e
+0xa8
+0x37
+0xe6
+0x80
+0x46
+0x06
+0x73
+0x97
+0x3d
+0xb5
+
+0xc3
+0x04
+0xb3
+0x96
+0xca
+0xf5
+0x2c
+0x7e
+0xb3
+0x6a
+0xd7
+0x3d
+0x01
+0x41
+0x04
+0x87
+
+0x03
+0x9f
+0xe6
+0x15
+0xaf
+0x82
+0x12
+0xe8
+0xa7
+0x54
+0x03
+0x6b
+0xbd
+0x5a
+0xb7
+0x91
+
+0x35
+0x7a
+0x2d
+0x1b
+0x68
+0x14
+0xcf
+0x67
+0x88
+0xa3
+0xc9
+0xae
+0xa0
+0xd8
+0xae
+0x3b
+
+0x6b
+0x12
+0x7b
+0x6d
+0x40
+0x9e
+0xa4
+0xee
+0x47
+0x42
+0x37
+0x1d
+0x6e
+0xfe
+0xa1
+0xb5
+
+0x77
+0x8a
+0x2d
+0x79
+0x6e
+0x01
+0xa2
+0xf2
+0xfe
+0x07
+0x2e
+0x2b
+0x0d
+0x01
+0xe3
+0xff
+
+0xff
+0xff
+0xff
+0x02
+0x16
+0x33
+0x01
+0x0f
+0x00
+0x00
+0x00
+0x00
+0x19
+0x76
+0xa9
+0x14
+
+0x46
+0x0f
+0x5b
+0xa7
+0xa6
+0xf1
+0x7b
+0xa0
+0x95
+0x81
+0xef
+0x48
+0x3c
+0x19
+0xd6
+0x58
+
+0x52
+0x02
+0xb6
+0x6b
+0x88
+0xac
+0xea
+0x6f
+0xe0
+0x02
+0x00
+0x00
+0x00
+0x00
+0x19
+0x76
+
+0xa9
+0x14
+0x78
+0x33
+0x87
+0x08
+0x20
+0xea
+0x7a
+0xe8
+0x97
+0x18
+0x52
+0x08
+0x76
+0x5e
+
+0x7e
+0xaa
+0x7e
+0xf9
+0xf2
+0xab
+0x88
+0xac
+0x00
+0x00
+0x00
+0x00
+0x00
+0x01
+0x00
+0x00
+
+0x00
+0x01
+0x75
+0x1e
+0x87
+0xa6
+0x55
+0xb3
+0xba
+0x8f
+0x70
+0x28
+0x45
+0x9b
+0x4b
+0x94
+
+0x4e
+0xdc
+0xb5
+0x4c
+0x13
+0x88
+0x9f
+0x5e
+0x5a
+0x43
+0x8b
+0xfa
+0xe8
+0x7a
+0x5f
+0x50
+
+0x27
+0x0b
+0x01
+0x00
+0x00
+0x00
+0x19
+0x76
+0xa9
+0x14
+0x78
+0x33
+0x87
+0x08
+0x20
+0xea
+
+0x7a
+0xe8
+0x97
+0x18
+0x52
+0x08
+0x76
+0x5e
+0x7e
+0xaa
+0x7e
+0xf9
+0xf2
+0xab
+0x88
+0xac
+
+0xff
+0xff
+0xff
+0xff
+0x01
+0x83
+0x3a
+0xd5
+0x02
+0x00
+0x00
+0x00
+0x00
+0x19
+0x76
+0xa9
+
+0x14
+0x64
+0x1a
+0xd5
+0x05
+0x1e
+0xdd
+0x97
+0x02
+0x9a
+0x00
+0x3f
+0xe9
+0xef
+0xb2
+0x93
+
+0x59
+0xfc
+0xee
+0x40
+0x9d
+0x88
+0xac
+0x00
+0x00
+0x00
+0x00
+0x01
+0x00
+0x00
+0x00
+
+
+
+-----------
+
+8
+1
+12
+fa
+2
+1
+1
+0
+0
+0
+1
+0
+0
+0
+1
+ed
+
+84
+8f
+f9
+97
+c
+7d
+eb
+77
+87
+26
+96
+81
+d7
+75
+fb
+ab
+
+c0
+38
+13
+fe
+a6
+a0
+4c
+98
+16
+96
+76
+de
+51
+c7
+ae
+1
+
+0
+0
+0
+8b
+48
+30
+45
+2
+21
+0
+d1
+90
+35
+4
+ee
+19
+
+62
+3e
+b3
+3a
+a
+a3
+ee
+d5
+55
+71
+41
+2d
+c0
+bf
+6d
+ff
+
+30
+24
+bd
+4d
+d5
+8f
+27
+3c
+af
+d1
+2
+20
+7b
+2c
+a7
+3
+
+94
+8
+6a
+19
+ce
+3e
+a8
+37
+e6
+80
+46
+6
+73
+97
+3d
+b5
+
+c3
+4
+b3
+96
+ca
+f5
+2c
+7e
+b3
+6a
+d7
+3d
+1
+41
+4
+87
+
+3
+9f
+e6
+15
+af
+82
+12
+e8
+a7
+54
+3
+6b
+bd
+5a
+b7
+91
+
+35
+7a
+2d
+1b
+68
+14
+cf
+67
+88
+a3
+c9
+ae
+a0
+d8
+ae
+3b
+
+6b
+12
+7b
+6d
+40
+9e
+a4
+ee
+47
+42
+37
+1d
+6e
+fe
+a1
+b5
+
+77
+8a
+2d
+79
+6e
+1
+a2
+f2
+fe
+7
+2e
+2b
+d
+01
+e3
+ff
+
+ff
+ff
+ff
+02
+16
+33
+01
+0f
+00
+00
+00
+00
+19
+76
+a9
+14
+
+46
+0f
+5b
+a7
+a6
+f1
+7b
+a0
+95
+81
+ef
+48
+3c
+19
+d6
+58
+
+52
+02
+b6
+6b
+88
+ac
+ea
+6f
+e0
+02
+00
+00
+00
+00
+19
+76
+
+a9
+14
+78
+33
+87
+08
+20
+ea
+7a
+e8
+97
+18
+52
+08
+76
+5e
+
+7e
+aa
+7e
+f9
+f2
+ab
+88
+ac
+00
+00
+00
+00
+00
+01
+00
+00
+
+00
+01
+75
+1e
+87
+a6
+55
+b3
+ba
+8f
+70
+28
+45
+9b
+4b
+94
+
+4e
+dc
+b5
+4c
+13
+88
+9f
+5e
+5a
+43
+8b
+fa
+e8
+7a
+5f
+50
+
+27
+0b
+01
+00
+00
+00
+19
+76
+a9
+14
+78
+33
+87
+8
+20
+ea
+
+7a
+e8
+97
+18
+52
+8
+76
+5e
+7e
+aa
+7e
+f9
+f2
+ab
+88
+ac
+
+ff
+ff
+ff
+ff
+1
+83
+3a
+d5
+2
+0
+0
+0
+0
+19
+76
+a9
+
+14
+64
+1a
+d5
+5
+1e
+dd
+97
+2
+9a
+0
+3f
+e9
+ef
+b2
+93
+
+59
+fc
+ee
+40
+9d
+88
+ac
+0
+0
+0
+0
+1
+0
+0
+0
+
+
+
+////////////////////////////////////
+
+
+
+// testTransaction
+2323000a0000017f              // packet control massage   dec 383 size
+
+
+// payload dec 84  hex 54   sign_transaction another data
+2323000a00000055
+01000000017b1eabe020
+9b1fe794124575ef8070
+57c77ada2138ae4fa8d6
+c4de0398a14f3f000000
+0000ffffffff01f0ca05
+2a010000001976a914cb
+c20a7664f2f69e5355aa
+427045bc15e7c6c77288
+ac00000000
+
+
+pbnano  메시지 분석
+0x0a  이후 다음 패킷은 메시지 크기를 나타냄
+
+//  PingResponse
+     undefined     a      0xa
+?     undefined     5      0x5
+H     undefined     48      0x48
+e     undefined     65      0x65
+l     undefined     6c      0x6c
+l     undefined     6c      0x6c
+o     undefined     6f      0x6f
+     undefined     12      0x12
+      undefined     0      0x0
+
+// Ping
+     undefined     a      0xa
+?     undefined     5      0x5
+H     undefined     48      0x48
+e     undefined     65      0x65
+l     undefined     6c      0x6c
+l     undefined     6c      0x6c
+o     undefined     6f      0x6f
+
+// 0x9  GetAddressAndPublicKey
+    undefined     8      0x8
+?     undefined     1      0x1
+
+
+//  0x36  DeviceUUID
+     undefined     a      0xa
+     undefined     10      0x10
+?     undefined     c7      0xc7
+?     undefined     6      0x6
+!     undefined     21      0x21
+?     undefined     2      0x2
+?     undefined     e4      0xe4
+?     undefined     dd      0xdd
+`     undefined     60      0x60
+¾     undefined     be      0xbe
+?     undefined     a3      0xa3
+?     undefined     8f      0x8f
+?     undefined     d5      0xd5
+±     undefined     b1      0xb1
+t     undefined     74      0x74
+|     undefined     7c      0x7c
+
+6     undefined     36      0x36
+C     undefined     43      0x43
+
+//  0x13 GetDeviceUUID
+ --
+
+//  0x57  OtpAck
+     undefined     a      0xa
+?     undefined     4      0x4
+3     undefined     33      0x33
+3     undefined     33      0x33
+5     undefined     35      0x35
+0     undefined     30      0x30
+
+// 0x32 Wallets
+     undefined     a      0xa
+>     undefined     3e      0x3e
+    undefined     8      0x8
+      undefined     0      0x0
+     undefined     12      0x12
+(     undefined     28      0x28
+t     undefined     74      0x74
+e     undefined     65      0x65
+s     undefined     73      0x73
+t     undefined     74      0x74
+      undefined     20      0x20
+w     undefined     77      0x77
+a     undefined     61      0x61
+l     undefined     6c      0x6c
+l     undefined     6c      0x6c
+e     undefined     65      0x65
+
+t     undefined     74      0x74
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+     undefined     1a      0x1a
+     undefined     10      0x10
+
+?     undefined     a5      0xa5
+>     undefined     3e      0x3e
+?     undefined     a2      0xa2
+1     undefined     31      0x31
+d     undefined     64      0x64
+?     undefined     5      0x5
+r     undefined     72      0x72
+3     undefined     33      0x33
+³     undefined     b3      0xb3
+U     undefined     55      0x55
+?     undefined     ac      0xac
+v     undefined     76      0x76
+Æ     undefined     c6      0xc6
+?     undefined     c7      0xc7
+Q     undefined     51      0x51
+?     undefined     ec      0xec
+
+
+//  0x10   list Wallets
+--
+
+// 0x14   Get Enropy
+    undefined     8      0x8
+      undefined     20      0x20
+
+// 
+    undefined     8      0x8
+?     undefined     8a      0x8a
+?     undefined     80      0x80
+    undefined     8      0x8
+     undefined     12      0x12          //  메시지 크기
+*     undefined     2a      0x2a
+F     undefined     46      0x46
+a     undefined     61      0x61
+i     undefined     69      0x69
+l     undefined     6c      0x6c
+u     undefined     75      0x75
+r     undefined     72      0x72
+e     undefined     65      0x65
+      undefined     20      0x20
+i     undefined     69      0x69
+n     undefined     6e      0x6e
+
+      undefined     20      0x20
+r     undefined     72      0x72
+a     undefined     61      0x61
+n     undefined     6e      0x6e
+d     undefined     64      0x64
+o     undefined     6f      0x6f
+m     undefined     6d      0x6d
+      undefined     20      0x20
+n     undefined     6e      0x6e
+u     undefined     75      0x75
+m     undefined     6d      0x6d
+b     undefined     62      0x62
+e     undefined     65      0x65
+r     undefined     72      0x72
+      undefined     20      0x20
+g     undefined     67      0x67
+
+e     undefined     65      0x65
+n     undefined     6e      0x6e
+e     undefined     65      0x65
+r     undefined     72      0x72
+a     undefined     61      0x61
+t     undefined     74      0x74
+i     undefined     69      0x69
+o     undefined     6f      0x6f
+n     undefined     6e      0x6e
+      undefined     20      0x20
+s     undefined     73      0x73
+y     undefined     79      0x79
+s     undefined     73      0x73
+t     undefined     74      0x74
+e     undefined     65      0x65
+m     undefined     6d      0x6d
+
+
+
+
+
+// 0x5  Create new address in Wallets
+--
+
+
+//   0x16   Delete Wallet
+    undefined     8      0x8
+      undefined     0      0x0
+
+
+// 0xa  Sign testTransaction   250
+    undefined     8      0x8
+?     undefined     1      0x1
+     undefined     12      0x12
+?     undefined     fa      0xfa
+?     undefined     2      0x2
+?     undefined     1      0x1
+?     undefined     1      0x1
+      undefined     0      0x0
+
+      undefined     0      0x0
+
+      undefined     0      0x0
+?     undefined     1      0x1
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+?     undefined     1      0x1
+?     undefined     ed      0xed
+
+?     undefined     84      0x84
+?     undefined     8f      0x8f
+?     undefined     f9      0xf9
+?     undefined     97      0x97
+
+     undefined     c      0xc
+}     undefined     7d      0x7d
+?     undefined     eb      0xeb
+w     undefined     77      0x77
+?     undefined     87      0x87
+&     undefined     26      0x26
+?     undefined     96      0x96
+?     undefined     81      0x81
+×     undefined     d7      0xd7
+u     undefined     75      0x75
+?     undefined     fb      0xfb
+?     undefined     ab      0xab
+
+?     undefined     c0      0xc0
+8     undefined     38      0x38
+     undefined     13      0x13
+þ     undefined     fe      0xfe
+?     undefined     a6      0xa6
+      undefined     a0      0xa0
+L     undefined     4c      0x4c
+?     undefined     98      0x98
+     undefined     16      0x16
+?     undefined     96      0x96
+v     undefined     76      0x76
+Þ     undefined     de      0xde
+Q     undefined     51      0x51
+?     undefined     c7      0xc7
+®     undefined     ae      0xae
+?     undefined     1      0x1
+
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+?     undefined     8b      0x8b
+H     undefined     48      0x48
+0     undefined     30      0x30
+E     undefined     45      0x45
+?     undefined     2      0x2
+!     undefined     21      0x21
+      undefined     0      0x0
+?     undefined     d1      0xd1
+?     undefined     90      0x90
+5     undefined     35      0x35
+?     undefined     4      0x4
+?     undefined     ee      0xee
+     undefined     19      0x19
+
+b     undefined     62      0x62
+>     undefined     3e      0x3e
+³     undefined     b3      0xb3
+:     undefined     3a      0x3a
+
+     undefined     a      0xa
+?     undefined     a3      0xa3
+?     undefined     ee      0xee
+?     undefined     d5      0xd5
+U     undefined     55      0x55
+q     undefined     71      0x71
+A     undefined     41      0x41
+-     undefined     2d      0x2d
+?     undefined     c0      0xc0
+¿     undefined     bf      0xbf
+m     undefined     6d      0x6d
+?     undefined     ff      0xff
+
+0     undefined     30      0x30
+$     undefined     24      0x24
+½     undefined     bd      0xbd
+M     undefined     4d      0x4d
+?     undefined     d5      0xd5
+?     undefined     8f      0x8f
+'     undefined     27      0x27
+<     undefined     3c      0x3c
+?     undefined     af      0xaf
+?     undefined     d1      0xd1
+?     undefined     2      0x2
+      undefined     20      0x20
+{     undefined     7b      0x7b
+,     undefined     2c      0x2c
+§     undefined     a7      0xa7
+?     undefined     3      0x3
+
+?     undefined     94      0x94
+    undefined     8      0x8
+j     undefined     6a      0x6a
+     undefined     19      0x19
+?     undefined     ce      0xce
+>     undefined     3e      0x3e
+¨     undefined     a8      0xa8
+7     undefined     37      0x37
+æ     undefined     e6      0xe6
+?     undefined     80      0x80
+F     undefined     46      0x46
+?     undefined     6      0x6
+s     undefined     73      0x73
+?     undefined     97      0x97
+=     undefined     3d      0x3d
+?     undefined     b5      0xb5
+
+?     undefined     c3      0xc3
+?     undefined     4      0x4
+³     undefined     b3      0xb3
+?     undefined     96      0x96
+?     undefined     ca      0xca
+?     undefined     f5      0xf5
+,     undefined     2c      0x2c
+~     undefined     7e      0x7e
+³     undefined     b3      0xb3
+j     undefined     6a      0x6a
+×     undefined     d7      0xd7
+=     undefined     3d      0x3d
+?     undefined     1      0x1
+A     undefined     41      0x41
+?     undefined     4      0x4
+?     undefined     87      0x87
+
+?     undefined     3      0x3
+?     undefined     9f      0x9f
+æ     undefined     e6      0xe6
+     undefined     15      0x15
+?     undefined     af      0xaf
+?     undefined     82      0x82
+     undefined     12      0x12
+?     undefined     e8      0xe8
+§     undefined     a7      0xa7
+T     undefined     54      0x54
+?     undefined     3      0x3
+k     undefined     6b      0x6b
+½     undefined     bd      0xbd
+Z     undefined     5a      0x5a
+·     undefined     b7      0xb7
+?     undefined     91      0x91
+
+5     undefined     35      0x35
+z     undefined     7a      0x7a
+-     undefined     2d      0x2d
+ndefined     1b      0x1b
+h     undefined     68      0x68
+     undefined     14      0x14
+?     undefined     cf      0xcf
+g     undefined     67      0x67
+?     undefined     88      0x88
+?     undefined     a3      0xa3
+?     undefined     c9      0xc9
+®     undefined     ae      0xae
+      undefined     a0      0xa0
+Ø     undefined     d8      0xd8
+®     undefined     ae      0xae
+;     undefined     3b      0x3b
+
+k     undefined     6b      0x6b
+     undefined     12      0x12
+{     undefined     7b      0x7b
+m     undefined     6d      0x6d
+@     undefined     40      0x40
+?     undefined     9e      0x9e
+¤     undefined     a4      0xa4
+?     undefined     ee      0xee
+G     undefined     47      0x47
+B     undefined     42      0x42
+7     undefined     37      0x37
+     undefined     1d      0x1d
+n     undefined     6e      0x6e
+þ     undefined     fe      0xfe
+¡     undefined     a1      0xa1
+?     undefined     b5      0xb5
+
+w     undefined     77      0x77
+?     undefined     8a      0x8a
+-     undefined     2d      0x2d
+y     undefined     79      0x79
+n     undefined     6e      0x6e
+?     undefined     1      0x1
+?     undefined     a2      0xa2
+?     undefined     f2      0xf2
+þ     undefined     fe      0xfe
+     undefined     7      0x7
+.     undefined     2e      0x2e
++     undefined     2b      0x2b
+     undefined     d      0xd
+?     undefined     1      0x1
+?     undefined     e3      0xe3
+?     undefined     ff      0xff
+
+?     undefined     ff      0xff
+?     undefined     ff      0xff
+?     undefined     ff      0xff
+?     undefined     2      0x2
+     undefined     16      0x16
+3     undefined     33      0x33
+?     undefined     1      0x1
+     undefined     f      0xf
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+     undefined     19      0x19
+v     undefined     76      0x76
+?     undefined     a9      0xa9
+     undefined     14      0x14
+
+F     undefined     46      0x46
+     undefined     f      0xf
+[     undefined     5b      0x5b
+§     undefined     a7      0xa7
+?     undefined     a6      0xa6
+?     undefined     f1      0xf1
+{     undefined     7b      0x7b
+      undefined     a0      0xa0
+?     undefined     95      0x95
+?     undefined     81      0x81
+?     undefined     ef      0xef
+H     undefined     48      0x48
+<     undefined     3c      0x3c
+     undefined     19      0x19
+?     undefined     d6      0xd6
+X     undefined     58      0x58
+
+R     undefined     52      0x52
+?     undefined     2      0x2
+¶     undefined     b6      0xb6
+k     undefined     6b      0x6b
+?     undefined     88      0x88
+?     undefined     ac      0xac
+?     undefined     ea      0xea
+o     undefined     6f      0x6f
+?     undefined     e0      0xe0
+?     undefined     2      0x2
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+     undefined     19      0x19
+v     undefined     76      0x76
+
+?     undefined     a9      0xa9
+     undefined     14      0x14
+x     undefined     78      0x78
+3     undefined     33      0x33
+?     undefined     87      0x87
+    undefined     8      0x8
+      undefined     20      0x20
+?     undefined     ea      0xea
+z     undefined     7a      0x7a
+?     undefined     e8      0xe8
+?     undefined     97      0x97
+     undefined     18      0x18
+R     undefined     52      0x52
+    undefined     8      0x8
+v     undefined     76      0x76
+^     undefined     5e      0x5e
+
+~     undefined     7e      0x7e
+ª     undefined     aa      0xaa
+~     undefined     7e      0x7e
+?     undefined     f9      0xf9
+?     undefined     f2      0xf2
+?     undefined     ab      0xab
+?     undefined     88      0x88
+?     undefined     ac      0xac
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+?     undefined     1      0x1
+      undefined     0      0x0
+      undefined     0      0x0
+
+      undefined     0      0x0
+?     undefined     1      0x1
+u     undefined     75      0x75
+     undefined     1e      0x1e
+?     undefined     87      0x87
+?     undefined     a6      0xa6
+U     undefined     55      0x55
+³     undefined     b3      0xb3
+º     undefined     ba      0xba
+?     undefined     8f      0x8f
+p     undefined     70      0x70
+(     undefined     28      0x28
+E     undefined     45      0x45
+ndefined     9b      0x9b
+K     undefined     4b      0x4b
+?     undefined     94      0x94
+
+N     undefined     4e      0x4e
+?     undefined     dc      0xdc
+?     undefined     b5      0xb5
+L     undefined     4c      0x4c
+     undefined     13      0x13
+?     undefined     88      0x88
+?     undefined     9f      0x9f
+^     undefined     5e      0x5e
+Z     undefined     5a      0x5a
+C     undefined     43      0x43
+?     undefined     8b      0x8b
+?     undefined     fa      0xfa
+?     undefined     e8      0xe8
+z     undefined     7a      0x7a
+_     undefined     5f      0x5f
+P     undefined     50      0x50
+
+'     undefined     27      0x27
+
+     undefined     b      0xb
+?     undefined     1      0x1
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+     undefined     19      0x19
+v     undefined     76      0x76
+?     undefined     a9      0xa9
+     undefined     14      0x14
+x     undefined     78      0x78
+3     undefined     33      0x33
+?     undefined     87      0x87
+    undefined     8      0x8
+      undefined     20      0x20
+?     undefined     ea      0xea
+
+z     undefined     7a      0x7a
+?     undefined     e8      0xe8
+?     undefined     97      0x97
+     undefined     18      0x18
+R     undefined     52      0x52
+    undefined     8      0x8
+v     undefined     76      0x76
+^     undefined     5e      0x5e
+~     undefined     7e      0x7e
+ª     undefined     aa      0xaa
+~     undefined     7e      0x7e
+?     undefined     f9      0xf9
+?     undefined     f2      0xf2
+?     undefined     ab      0xab
+?     undefined     88      0x88
+?     undefined     ac      0xac
+
+?     undefined     ff      0xff
+?     undefined     ff      0xff
+?     undefined     ff      0xff
+?     undefined     ff      0xff
+?     undefined     1      0x1
+?     undefined     83      0x83
+:     undefined     3a      0x3a
+?     undefined     d5      0xd5
+?     undefined     2      0x2
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+     undefined     19      0x19
+v     undefined     76      0x76
+?     undefined     a9      0xa9
+
+     undefined     14      0x14
+d     undefined     64      0x64
+     undefined     1a      0x1a
+?     undefined     d5      0xd5
+?     undefined     5      0x5
+     undefined     1e      0x1e
+?     undefined     dd      0xdd
+?     undefined     97      0x97
+?     undefined     2      0x2
+?     undefined     9a      0x9a
+      undefined     0      0x0
+?     undefined     3f      0x3f
+?     undefined     e9      0xe9
+?     undefined     ef      0xef
+²     undefined     b2      0xb2
+?     undefined     93      0x93
+
+Y     undefined     59      0x59
+?     undefined     fc      0xfc
+?     undefined     ee      0xee
+@     undefined     40      0x40
+?     undefined     9d      0x9d
+?     undefined     88      0x88
+?     undefined     ac      0xac
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+?     undefined     1      0x1
+      undefined     0      0x0
+      undefined     0      0x0
+      undefined     0      0x0
+
+
+//    0x31  numberOfAddresses
+    undefined     8      0x8
+?     undefined     1      0x1
+
+//   0x17   Initialize
+     undefined     a      0xa
+    undefined     8      0x8
+1     undefined     31      0x31
+2     undefined     32      0x32
+3     undefined     33      0x33
+4     undefined     34      0x34
+5     undefined     35      0x35
+6     undefined     36      0x36
+7     undefined     37      0x37
+8     undefined     38      0x38
+
+
+//  
+
+    undefined     8      0x8
+?     undefined     86      0x86
+?     undefined     80      0x80
+?     undefined     4      0x4
+     undefined     12      0x12           // ??
+     undefined     11      0x11           // 메시지 갯수
+U     undefined     55      0x55
+n     undefined     6e      0x6e
+e     undefined     65      0x65
+x     undefined     78      0x78
+p     undefined     70      0x70
+e     undefined     65      0x65
+c     undefined     63      0x63
+t     undefined     74      0x74
+e     undefined     65      0x65
+d     undefined     64      0x64
+
+      undefined     20      0x20
+p     undefined     70      0x70
+a     undefined     61      0x61
+c     undefined     63      0x63
+k     undefined     6b      0x6b
+e     undefined     65      0x65
+t     undefined     74      0x74
+
+
+
+//   Signed testTransaction
+     undefined     a      0xa
+H     undefined     48      0x48
+0     undefined     30      0x30
+E     undefined     45      0x45
+?     undefined     2      0x2
+!     undefined     21      0x21
+      undefined     0      0x0
+?     undefined     fb      0xfb
+?     undefined     e5      0xe5
+?     undefined     c2      0xc2
+?     undefined     fd      0xfd
+#     undefined     23      0x23
+?     undefined     cc      0xcc
+¡     undefined     a1      0xa1
+Q     undefined     51      0x51
+?     undefined     ee      0xee
+
+?     undefined     cf      0xcf
+ndefined     1b      0x1b
+$     undefined     24      0x24
+;     undefined     3b      0x3b
+     undefined     d      0xd
+?     undefined     4      0x4
+g     undefined     67      0x67
++     undefined     2b      0x2b
+     undefined     13      0x13
+
+     undefined     c      0xc
+^     undefined     5e      0x5e
+     undefined     7      0x7
+?     undefined     a9      0xa9
+F     undefined     46      0x46
+?     undefined     e7      0xe7
+?     undefined     f5      0xf5
+
+O     undefined     4f      0x4f
+?     undefined     e5      0xe5
+e     undefined     65      0x65
+     undefined     7f      0x7f
+%     undefined     25      0x25
+:     undefined     3a      0x3a
+½     undefined     bd      0xbd
+?     undefined     2      0x2
+      undefined     20      0x20
+$     undefined     24      0x24
+?     undefined     cc      0xcc
+`     undefined     60      0x60
+?     undefined     eb      0xeb
+0     undefined     30      0x30
+6     undefined     36      0x36
+K     undefined     4b      0x4b
+
+±     undefined     b1      0xb1
+?     undefined     a3      0xa3
+V     undefined     56      0x56
+*     undefined     2a      0x2a
+]     undefined     5d      0x5d
+p     undefined     70      0x70
+?     undefined     b5      0xb5
+?     undefined     f6      0xf6
+~     undefined     7e      0x7e
+?     undefined     e2      0xe2
+G     undefined     47      0x47
+?     undefined     f6      0xf6
+ø     undefined     f8      0xf8
+V     undefined     56      0x56
+G     undefined     47      0x47
+?     undefined     c3      0xc3
+
+?     undefined     e1      0xe1
+D     undefined     44      0x44
+6     undefined     36      0x36
+I     undefined     49      0x49
+ð     undefined     f0      0xf0
+m     undefined     6d      0x6d
+?     undefined     6      0x6
+?     undefined     d1      0xd1
+?     undefined     fc      0xfc
+?     undefined     1      0x1

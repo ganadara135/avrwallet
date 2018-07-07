@@ -1,0 +1,50 @@
+2323000a0000005f080112fa02010100000001000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f0000000000ffffffff01f0ca05a010000001976a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac00000000
+
+
+01000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f0000000000ffffffff01f0ca052a010000001976a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac00000000
+
+---------------------------
+
+2323000a0000005f
+080112fa02010100
+000001000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f0000000000ffffffff01f0ca05a010000001976a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac00000000
+
+------------------------------------------------------------------
+2323000a0000005f
+0801125b02
+01					// is_ref
+00000000			// output number			
+01000000			// version
+01					// number of inputs
+7b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f//input transactionhash
+00000000			// input transaction reference number
+00        			// getVarInt()   script_length
+ffffffff			// sequence
+01					// number of outputs
+f0ca052a01000000	// output amount
+19					// script_length
+76a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac   // script
+	=>  76a914
+	=>  cbc20a7664f2f69e5355aa427045bc15e7c6c772   // address_version_pubkey
+	=>  88ac                						// OP_EQUALVERIFY OP_CHECKSIG.
+00000000             // locktime
+-------------------------------------------------------------------------------
+The way of calculating Protocol Buffers
+
+0x57         /  0x02 (add this value when X happens carry)  숫자 올림 발생시
+
+0101 0111    /  0000 0010
+
+
+000 0010  101 0111
+
+000 0010  101 0111  = 0101 0111   ( take only 8 bits from LSB)
+
+------------------------------------------------------------------------
+2323000a0000005e
+0801125a
+01
+01000000
+01000000
+01
+7b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f0000000000ffffffff01f0ca052a010000001976a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac00000000
